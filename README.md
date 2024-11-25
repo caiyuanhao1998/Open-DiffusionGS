@@ -31,14 +31,9 @@ This is an open-source version of our work "Baking Gaussian Splatting into Diffu
 
 ### Performance
 
-<details close>
-<summary><b>Real Datasets</b></summary>
+![results1](/img/compare_table.png)
 
-![results1](/fig/real_table.png)
-
-![results2](/fig/real_figure.png)
-
-</details>
+![results2](/img/compare_figure.png)
 
 
 

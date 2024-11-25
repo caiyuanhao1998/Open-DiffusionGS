@@ -20,7 +20,7 @@
 
 ### Introduction
 This is an implementation of our work "Baking Gaussian Splatting into Diffusion Denoiser for Fast and Scalable Single-stage Image-to-3D Generation
-". Our DiffusionGS is single-stage and does not rely on a 2D multi-view diffusion model. DiffusionGS can be applied to 3D object and scene generation from a single view in ~6 seconds. If you find our repo useful, please help us star it and consider citing our paper. Thanks you :)
+". Our DiffusionGS is single-stage and does not rely on a 2D multi-view diffusion model. DiffusionGS can be applied to 3D object and scene generation from a single view in ~6 seconds. If you find our repo useful, please give it a star ⭐ and consider citing our paper. Thank you :)
 
 
 

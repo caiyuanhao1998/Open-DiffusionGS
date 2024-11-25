@@ -29,11 +29,25 @@ This is an open-source version of our work "Baking Gaussian Splatting into Diffu
 - **2024.11.21 :** We upload the prompt image and our generation results to our [hugging face dataset](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS). Feel free to download and make a comparison with your method. 🤗
 - **2024.11.20 :** Our paper is on [arxiv](https://arxiv.org/abs/2411.14384) now. 🚀
 
-### Performance
+### Comparison with State-of-the-Art Methods
+
+<details close>
+<summary><b>Qualitative Results</b></summary>
+
+![visual_results](/img/compare_figure.png)
+
+</details>
+
+
+<details close>
+<summary><b>Quantitative Results</b></summary>
 
 ![results1](/img/compare_table.png)
 
-![results2](/img/compare_figure.png)
+</details>
+
+
+
 
 
 

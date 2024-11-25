@@ -9,7 +9,26 @@
 [![hf](https://img.shields.io/badge/hugging-face-green)](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS)
 [![MrNeRF](https://img.shields.io/badge/media-MrNeRF-yellow)](https://x.com/janusch_patas/status/1859867424859856997?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Etweet)
 
-
+<p align="center">
+  <img src="img/abo.gif" width="24%" alt="abo">
+  <img src="img/gso.gif" width="24%" alt="gso">
+  <img src="img/real_img.gif" width="24%" alt="real_img">
+  <img src="img/wild.gif" width="24%" alt="wild">
+</p>
+<p align="center">
+  <img src="img/sd_2.gif" width="24%" alt="sd_2">
+  <img src="img/sd_1.gif" width="24%" alt="sd_1">
+  <img src="img/flux_1.gif" width="24%" alt="flux_1">
+  <img src="img/green_man.gif" width="24%" alt="green_man">
+</p>
+<p align="center">
+  <img src="img/plaza.gif" width="50%" alt="plaza">
+  <img src="img/town.gif" width="48%" alt="town">
+</p>
+<p align="center">
+  <img src="img/cliff.gif" width="49.5%" alt="cliff">
+  <img src="img/art_gallery.gif" width="48.5%" alt="art_gallery">
+</p>
 
 
 &nbsp;

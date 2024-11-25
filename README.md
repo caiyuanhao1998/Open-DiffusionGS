@@ -33,7 +33,7 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 ### Comparison with State-of-the-Art Methods
 
 <details close>
-<summary><b>Qualitative Results</b></summary>
+<summary><b>Qualitative Comparison</b></summary>
 
 ![visual_results](/img/compare_figure.png)
 
@@ -41,7 +41,7 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 
 
 <details close>
-<summary><b>Quantitative Results</b></summary>
+<summary><b>Quantitative Comparison</b></summary>
 
 ![results1](/img/compare_table.png)
 

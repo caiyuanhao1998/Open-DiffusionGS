@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h4>Baking Gaussian Splatting into Diffusion Denoiser for Fast and Scalable Single-stage Image-to-3D Generation</h4> 
+<h3>Baking Gaussian Splatting into Diffusion Denoiser <br> for Fast and Scalable Single-stage Image-to-3D Generation</h3> 
 
 [![arXiv](https://img.shields.io/badge/paper-arxiv-179bd3)](https://arxiv.org/abs/2411.14384)
 [![project](https://img.shields.io/badge/project-page-green)](https://caiyuanhao1998.github.io/project/DiffusionGS/)

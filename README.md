@@ -45,7 +45,7 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 
 
 ### News
-- **2025.02.26 :** Unfortunately, our paper was rejected by CVPR 2025. We will re-submit this work to the next conference. The open-source plan will be postponed.
+- **2025.02.26 :** Unfortunately, our paper was rejected by CVPR 2025. We will re-submit this work to the next conference. The open-source plan will be postponed. 😢😿
 - **2024.11.22 :** Our [project page](https://caiyuanhao1998.github.io/project/DiffusionGS/) has been built up. Feel free to check the video and interactive generation results on the project page.
 - **2024.11.21 :** We upload the prompt image and our generation results to our [hugging face dataset](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS). Feel free to download and make a comparison with your method. 🤗
 - **2024.11.20 :** Our paper is on [arxiv](https://arxiv.org/abs/2411.14384) now. 🚀

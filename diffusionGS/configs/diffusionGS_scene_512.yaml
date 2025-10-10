@@ -1,0 +1,95 @@
+exp_root_dir: "outputs"
+name: "diffusion_gs_scene_re10k_512_stage2_again3"
+tag: "${rmspace:${system.shape_model_type}+lr${system.optimizer.args.lr},_}"
+seed: 0
+# resume: outputs/image-to-shape-diffusion/clip-dino-rgb-pixart-lr2e4-ddim-refine-sum-scaleup-from-190k-norm-scale-up-1024-new-vae/michelangelo-autoencoder+n12288+noise0.0+pfeat3+normembFalse+lr0.0002+qkvbiasFalse+nfreq8+ln_postTrue/ckpts/last.ckpt
+
+
+data_type: "Re10k-datamodule"
+data:
+  local_dir: "DATAPATH_TO_RE10K_TRAIN_FULLLIST"
+  local_eval_dir: "DATAPATH_TO_RE10K_EVAL_FULLLIST"
+  sel_views: 3
+  eval_subset: 16
+  sel_views_train: 4
+  training_res: [512, 512]
+  batch_size: 12
+  eval_batch_size: 1
+  num_workers: 4
+  
+
+system_type: "diffusion-gs-scene-system"
+system:
+  num_inference_steps: 30
+  save_intermediate_video: True
+
+  shape_model_type: "diffusion-gs-model-scene"
+  shape_model:
+    pretrained_model_name_or_path: "PATH_TO_FIRSTSTAGE_CKPT"
+    width: 1024
+    in_channels: 9 #rgb+plucker
+    patch_size: 8
+    n_gaussians: 2
+    dim_heads: 64
+    num_layers: 24
+    # gs_per_pixel_sqrt: 1
+    #range_setting_type: "linear_depth"
+    range_setting_near: 0 
+    range_setting_far: 500 
+    prior_distribution: 'gaussian' #sphere_gaussian
+    ray_pe_type: 'plk'
+    #ray_pe_type: str = "relative_plk"
+    use_flash: true
+    use_checkpoint: true
+
+  noise_scheduler_type: "diffusionGS.models.scheduler.ddim_scheduler.DDIMScheduler"
+  noise_scheduler:
+    num_train_timesteps: 1000
+    prediction_type: "sample"
+
+  loggers:
+    wandb:
+      enable: false
+      project: "diffusionGS"
+      name: image-to-shape-diffusion+${name}+${tag}
+
+  loss:
+    loss_type: "mse"
+    lambda_diffusion: 1. #[150, 0., 1., 151] #1.
+    lambda_lpips: 0.1 #[150, 0., 0.5, 151]
+    lambda_ssim: 0.0
+    lambda_pointsdist: 0.0 #[150, 1., 0., 151]
+    lambda_xyz: 0. #[100, 0., 1., 101]
+    lambda_depth: 0. #[100, 0., 0.25, 101]
+
+  optimizer:
+    name: AdamW
+    args:
+      lr: 3.e-5
+      betas: [0.9, 0.95]
+      eps: 1.e-6
+      weight_decay: 0.05
+
+  scheduler:
+    name: CosineAnnealingLR
+    args:
+      T_max: 500000
+      eta_min: 1e-6
+
+trainer:
+  num_nodes: 1
+  max_epochs: 1000000
+  log_every_n_steps: 5
+  num_sanity_val_steps: 1
+  #val_check_interval: 5000
+  check_val_every_n_epoch: 5
+  accumulate_grad_batches: 1
+  gradient_clip_val: 0.5
+  enable_progress_bar: true
+  precision: 16-mixed
+  strategy: 'ddp_find_unused_parameters_true' #_find_unused_parameters_true
+
+checkpoint:
+  save_last: true
+  save_top_k: -1
+  every_n_train_steps: 5000

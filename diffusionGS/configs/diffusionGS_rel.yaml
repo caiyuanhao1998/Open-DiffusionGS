@@ -1,0 +1,85 @@
+exp_root_dir: "outputs"
+name: "diffusion_gs_obja_4views_relposes"
+tag: "${rmspace:${system.shape_model_type}+lr${system.optimizer.args.lr},_}"
+seed: 0
+
+data_type: "Objaverse-datamodule"
+data:
+  local_dir: "DATAPATH_TO_GOBJAVERSE_JSON"
+  image_dir: "DATAPATH_TO_GOBJAVERSE"
+  gen_idxs: [30,33,36,39] ##
+  sel_views: 6
+  gen_views: 4
+  training_res: [256, 256]
+  batch_size: 4
+  num_workers: 4
+  norm_camera: True
+  norm_radius: 3. #1.8
+  gen_rel_idxs: True
+  
+
+system_type: "diffusion-gs-system"
+system:
+  num_inference_steps: 30
+
+  shape_model_type: "diffusion-gs-model"
+  shape_model:
+    width: 1024
+    in_channels: 9 #rgb+plucker
+    patch_size: 8
+    n_gaussians: 2
+    dim_heads: 64
+    num_layers: 24
+    prior_distribution: 'gaussian' #sphere_gaussian
+    use_flash: true
+    use_checkpoint: true
+
+  noise_scheduler_type: "diffusionGS.models.scheduler.ddim_scheduler.DDIMScheduler"
+  noise_scheduler:
+    num_train_timesteps: 1000
+    prediction_type: "sample"
+
+  loggers:
+    wandb:
+      enable: false
+      project: "diffusionGS"
+      name: image-to-shape-diffusion+${name}+${tag}
+
+  loss:
+    loss_type: "mse"
+    lambda_diffusion: [150, 0., 1., 151]
+    lambda_lpips: [150, 0., 0.5, 151]
+    lambda_ssim: 0.0
+    lambda_pointsdist: [150, 1., 0., 151]
+    lambda_xyz: [150, 0., 0.025, 151]
+    lambda_depth: 0.
+
+  optimizer:
+    name: AdamW
+    args:
+      lr: 1.e-5
+      betas: [0.9, 0.99]
+      eps: 1.e-8
+
+  scheduler:
+    name: CosineAnnealingLR
+    args:
+      T_max: 500000
+      eta_min: 1e-6
+
+trainer:
+  num_nodes: 1
+  max_epochs: 1000000
+  log_every_n_steps: 5
+  num_sanity_val_steps: 1
+  check_val_every_n_epoch: 2
+  accumulate_grad_batches: 1
+  gradient_clip_val: 0.5
+  enable_progress_bar: true
+  precision: 16-mixed
+  strategy: 'ddp_find_unused_parameters_true'
+
+checkpoint:
+  save_last: true
+  save_top_k: -1
+  every_n_train_steps: 1000

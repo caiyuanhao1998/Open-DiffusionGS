@@ -85,7 +85,7 @@ pip install -e submodules/simple-knn
 
 &nbsp;
 
-## 2. Gradio Quick Demo
+## 2. Quick Demo
 For object-centric image-to-3D generation model, we provide a single-line script to use the code:
 ```shell
 python run.py

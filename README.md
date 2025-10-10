@@ -135,12 +135,12 @@ Then, specified the `local_dir` to this json file and the `image_dir` to the `go
 
 ## 4. Evaluation for Single-view Scene Reconstruction
 
-The scene-level evaluation is conducted on the [RealEstate10K](http://schadenfreude.csail.mit.edu:8000/) dataset prepocessed by [pixelSplat](https://github.com/dcharatan/pixelsplat). The model checkpoints are host on [HuggingFace](https://huggingface.co/coast01/LVSM/tree/main). 
+The scene-level evaluation is conducted on the [RealEstate10K](http://schadenfreude.csail.mit.edu:8000/) dataset prepocessed by [pixelSplat](https://github.com/dcharatan/pixelsplat). The model checkpoints are host on [HuggingFace](https://huggingface.co/CaiYuanhao/DiffusionGS/tree/main). 
 
 | Model | PSNR  | SSIM  | LPIPS |
 | ----- | ----- | ----- | ----- |
-| [Open-DiffusionGS(res256)]() | 21.26 | 0.672 | 0.257 |
-| [Open-DiffusionGS(res512)]() | - | - | - |
+| [Open-DiffusionGS(res256)](https://huggingface.co/CaiYuanhao/DiffusionGS/blob/main/scene_ckpt_256.ckpt) | 21.26 | 0.672 | 0.257 |
+| [Open-DiffusionGS(res512)](https://huggingface.co/CaiYuanhao/DiffusionGS/blob/main/scene_ckpt_512.ckpt) | - | - | - |
 
 We use `./extra_files/evaluation_index_re10k.json` to specify the input and target view indice. This json file is originally from [pixelSplat](https://github.com/dcharatan/pixelsplat). 
 

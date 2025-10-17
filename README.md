@@ -71,22 +71,22 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 <summary><b>Qualitative Comparison between Hunyuan-v2.5 and Our Open-source Version Model</b></summary>
 
 
-`Note:` The first row is the prompt image. The second row is Hunyuan-v2.5. The third row is our open-source model. Our model only takes 24s for inference, while Hunyuan-v2.5 takes about 180s. Our model is **7.5x** faster.
+`Note:` The first row is the prompt image. The second row is Hunyuan-v2.5. The third row is our open-source model. Our model only takes 24s for inference, while Hunyuan-v2.5 takes about 180s. Our model is **7.5x** faster. As for the training cost, our open-source model only takes 16-32 GPUs to train and can be applied on scene-level generation, while Hunyuan-v2.5 is much more expensive.
 
 <p align="center">
-  <img src="img/1.jpg" width="33%" alt="1">
-  <img src="img/2.jpg" width="33%" alt="2">
-  <img src="img/3.jpg" width="33%" alt="3">
+  <img src="img/1.jpg" width="32%" alt="1">
+  <img src="img/2.jpg" width="32%" alt="2">
+  <img src="img/3.jpg" width="32%" alt="3">
 </p>
 <p align="center">
-  <img src="img/hunyuan_1.gif" width="33%" alt="hunyuan_1">
-  <img src="img/hunyuan_2.gif" width="33%" alt="hunyuan_2">
-  <img src="img/hunyuan_3.gif" width="33%" alt="hunyuan_3">
+  <img src="img/hunyuan_1.gif" width="32%" alt="hunyuan_1">
+  <img src="img/hunyuan_2.gif" width="32%" alt="hunyuan_2">
+  <img src="img/hunyuan_3.gif" width="32%" alt="hunyuan_3">
 </p>
 <p align="center">
-  <img src="img/ours_1.gif" width="33%" alt="ours_1">
-  <img src="img/ours_2.gif" width="33%" alt="ours_2">
-  <img src="img/ours_3.gif" width="33%" alt="ours_3">
+  <img src="img/ours_1.gif" width="32%" alt="ours_1">
+  <img src="img/ours_2.gif" width="32%" alt="ours_2">
+  <img src="img/ours_3.gif" width="32%" alt="ours_3">
 </p>
 
 </details>

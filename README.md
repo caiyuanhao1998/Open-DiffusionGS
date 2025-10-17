@@ -45,6 +45,7 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 
 
 ### News
+- **2025.10.17 :** Add visual comparisons between Hunyuan-v2.5 and our open-source model.  Our method is over **7.5x** Hunyuan-v2.5 model.  🚀
 - **2025.10.10 :** Code and models have been released. Feel free to check and use them.  💫
 - **2024.11.22 :** Our [project page](https://caiyuanhao1998.github.io/project/DiffusionGS/) has been built up. Feel free to check the video and interactive generation results on the project page.
 - **2024.11.21 :** We upload the prompt image and our generation results to our [hugging face dataset](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS). Feel free to download and make a comparison with your method. 🤗

@@ -79,14 +79,14 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
   <img src="img/3.jpg" width="33%" alt="3">
 </p>
 <p align="center">
-  <img src="img/hunyuan_1.gif" width="24%" alt="hunyuan_1">
-  <img src="img/hunyuan_2.gif" width="24%" alt="hunyuan_2">
-  <img src="img/hunyuan_3.gif" width="24%" alt="hunyuan_3">
+  <img src="img/hunyuan_1.gif" width="33%" alt="hunyuan_1">
+  <img src="img/hunyuan_2.gif" width="33%" alt="hunyuan_2">
+  <img src="img/hunyuan_3.gif" width="33%" alt="hunyuan_3">
 </p>
 <p align="center">
-  <img src="img/ours_1.gif" width="24%" alt="ours_1">
-  <img src="img/ours_2.gif" width="24%" alt="ours_2">
-  <img src="img/ours_3.gif" width="24%" alt="ours_3">
+  <img src="img/ours_1.gif" width="33%" alt="ours_1">
+  <img src="img/ours_2.gif" width="33%" alt="ours_2">
+  <img src="img/ours_3.gif" width="33%" alt="ours_3">
 </p>
 
 </details>

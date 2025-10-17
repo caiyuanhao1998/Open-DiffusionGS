@@ -1,7 +1,4 @@
-&nbsp;
-
 <div align="center">
-  
 <p align="center"> <img src="img/logo.png" width="200px"> </p>
 
 [![arXiv](https://img.shields.io/badge/paper-arxiv-179bd3)](https://arxiv.org/abs/2411.14384)

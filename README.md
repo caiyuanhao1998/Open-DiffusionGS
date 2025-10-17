@@ -5,8 +5,10 @@
 [![project](https://img.shields.io/badge/project-page-green)](https://caiyuanhao1998.github.io/project/DiffusionGS/)
 [![hf](https://img.shields.io/badge/hugging-face-green)](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS)
 [![MrNeRF](https://img.shields.io/badge/media-MrNeRF-yellow)](https://x.com/janusch_patas/status/1859867424859856997?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Etweet)
-
 <h3>Baking Gaussian Splatting into Diffusion Denoiser for Fast and <br> Scalable Single-stage Image-to-3D Generation and Reconstruction</h3> 
+
+</div>
+
 
 <p align="center">
   <img src="img/abo.gif" width="24%" alt="abo">
@@ -28,11 +30,6 @@
   <img src="img/cliff.gif" width="49.5%" alt="cliff">
   <img src="img/art_gallery.gif" width="48.5%" alt="art_gallery">
 </p>
-
-
-&nbsp;
-
-</div>
 
 
 

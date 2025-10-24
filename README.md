@@ -38,9 +38,11 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 ". The code and checkpoints here is a **re-implementation** and **re-training** and **differs** from the original version developed at Adobe. Our DiffusionGS is single-stage and does not rely on 2D multi-view diffusion model. DiffusionGS can be applied to single-view 3D object generation and scene reconstruction without using depth estimator in ~6 seconds. If you find our repo useful, please give it a star ⭐ and consider citing our paper. Thank you :)
 
 ![pipeline](img/pipeline.png)
+![mesh](img/mesh.png)
 
 
 ### News
+- **2025.10.23 :** Add mesh exportion example. Code of this part will also will be released. 🤗
 - **2025.10.17 :** Add visual comparisons between Hunyuan-v2.5 and our open-source model.  Our method is over **7.5x** Hunyuan-v2.5 model.  🚀
 - **2025.10.10 :** Code and models have been released. Feel free to check and use them.  💫
 - **2024.11.22 :** Our [project page](https://caiyuanhao1998.github.io/project/DiffusionGS/) has been built up. Feel free to check the video and interactive generation results on the project page.

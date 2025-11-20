@@ -176,6 +176,7 @@ class DiffusionGSPipeline():
         force_remove_background: bool = False,
         background_color: List[int] = [255, 255, 255],
         foreground_ratio: float = 0.825,
+        extract_mesh: bool = True,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -312,6 +313,10 @@ class DiffusionGSPipeline():
             cam_origins=None,
             nearfar_percent=(0.0001, 1.0),
             )
+        mesh = gaussians.extract_mesh()
         if not return_dict:
-            return tuple(mesh)
-        return GSPipelineOutput(gaussians=gaussians, render_images = pred_images)
+            return gaussians
+        if extract_mesh:
+            return GSPipelineOutput(gaussians=gaussians, render_images = pred_images, mesh=mesh)
+        else:
+            return GSPipelineOutput(gaussians=gaussians, render_images = pred_images)

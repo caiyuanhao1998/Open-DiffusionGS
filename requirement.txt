@@ -38,3 +38,4 @@ xformers==0.0.29.post1
 pytorch_msssim
 lpips
 imageio-ffmpeg
+kiui

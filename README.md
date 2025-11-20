@@ -43,6 +43,7 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 
 
 ### News
+- **2025.11.20 :** Added mesh exportation code. This part is built upon [DreamGaussian](https://github.com/dreamgaussian/dreamgaussian). Big thanks for their contribution. 🤗
 - **2025.10.23 :** Add mesh exportion example. Code of this part will also will be released. 🤗
 - **2025.10.17 :** Add visual comparisons between Hunyuan-v2.5 and our open-source model.  Our method is over **7.5x** Hunyuan-v2.5 model.  🚀
 - **2025.10.10 :** Code and models have been released. Feel free to check and use them.  💫

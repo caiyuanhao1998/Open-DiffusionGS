@@ -43,7 +43,7 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 
 
 ### News
-- **2025.11.20 :** Added mesh exportation code. This part is built upon [DreamGaussian](https://github.com/dreamgaussian/dreamgaussian). Big thanks for their contribution. 🤗
+- **2025.11.20 :** Added mesh exportation code. Feel free to have a try. 💫
 - **2025.10.23 :** Add mesh exportion example. Code of this part will also will be released. 🤗
 - **2025.10.17 :** Add visual comparisons between Hunyuan-v2.5 and our open-source model.  Our method is over **7.5x** Hunyuan-v2.5 model.  🚀
 - **2025.10.10 :** Code and models have been released. Feel free to check and use them.  💫
@@ -204,7 +204,7 @@ bash scripts/train_scene_stage2.py # train object model (res512)
 bash scripts/train_obj_stage1.py  # train scene model (res256)
 bash scripts/train_obj_stage2.py  # train scene model (res512)
 ```
-Before training, you need to specified your data path in the config files by replace `local_dir` to your processed `RealEstate10K` (For scene). Or `image_dir` and `local_dir` to the `gobjaverse` file and the prepared json folder (For object).
+Before training, you need to specified your data path in the config files by replacing `local_dir` to your processed `RealEstate10K` (For scene). Or `image_dir` and `local_dir` to the `gobjaverse` file and the prepared json folder (For object).
 
 Note: when you train the second stage model, remember to replace   `shape_model.pretrained_model_name_or_path: ` to the trained first stage checkpoint.
 
@@ -223,4 +223,4 @@ Note: when you train the second stage model, remember to replace   `shape_model.
 &nbsp;
 
 ## Acknowledgments
-We would like to thank the following projects: [DiffSplat](https://github.com/chenguolin/DiffSplat), [CraftsMan3D](https://github.com/HKUST-SAIL/CraftsMan3D), [LVSM](https://github.com/Haian-Jin/LVSM).
+We would like to thank the following projects: [DiffSplat](https://github.com/chenguolin/DiffSplat), [CraftsMan3D](https://github.com/HKUST-SAIL/CraftsMan3D), [LVSM](https://github.com/Haian-Jin/LVSM), and [DreamGaussian](https://github.com/dreamgaussian/dreamgaussian)

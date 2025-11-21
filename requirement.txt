@@ -39,3 +39,4 @@ pytorch_msssim
 lpips
 imageio-ffmpeg
 kiui
+pymeshlab==2023.12

@@ -1,12 +1,12 @@
 <div align="center">
 <p align="center"> <img src="img/logo.png" width="200px"> </p>
 
-[![arXiv](https://img.shields.io/badge/paper-arxiv-179bd3)](https://arxiv.org/abs/2411.14384)
-[![zhihu](https://img.shields.io/badge/知乎-解读-179bd3)](https://zhuanlan.zhihu.com/p/1962623398749372601)
-[![project](https://img.shields.io/badge/project-page-green)](https://caiyuanhao1998.github.io/project/DiffusionGS/)
-[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Dataset-yellow)](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS)
-[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-yellow)](https://huggingface.co/CaiYuanhao/DiffusionGS)
-[![MrNeRF](https://img.shields.io/badge/media-MrNeRF-yellow)](https://x.com/janusch_patas/status/1859867424859856997?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Etweet)
+[![arXiv](https://img.shields.io/badge/arXiv-paper-B31B1B)](https://arxiv.org/abs/2411.14384)
+[![zhihu](https://img.shields.io/badge/zhihu-知乎解读-0084FF)](https://zhuanlan.zhihu.com/p/1962623398749372601)
+[![Project](https://img.shields.io/badge/Project-page-2EA44F)](https://caiyuanhao1998.github.io/project/DiffusionGS/)
+[![Hugging Face Dataset](https://img.shields.io/badge/🤗_Hugging_Face-dataset-FFD21E)](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS)
+[![Hugging Face Model](https://img.shields.io/badge/🤗_Hugging_Face-model-FFD21E)](https://huggingface.co/CaiYuanhao/DiffusionGS)
+[![MrNeRF](https://img.shields.io/badge/Media-MrNeRF-FFD21E)](https://x.com/janusch_patas/status/1859867424859856997)
 <h3>Baking Gaussian Splatting into Diffusion Denoiser for Fast and <br> Scalable Single-stage Image-to-3D Generation and Reconstruction</h3> 
 
 </div>

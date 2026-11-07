@@ -4,9 +4,10 @@
 [![arXiv](https://img.shields.io/badge/arXiv-paper-B31B1B)](https://arxiv.org/abs/2411.14384)
 [![zhihu](https://img.shields.io/badge/zhihu-知乎解读-0084FF)](https://zhuanlan.zhihu.com/p/1962623398749372601)
 [![Project](https://img.shields.io/badge/Project-page-2EA44F)](https://caiyuanhao1998.github.io/project/DiffusionGS/)
-[![Hugging Face Dataset](https://img.shields.io/badge/🤗_Hugging_Face-dataset-FFD21E)](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS)
-[![Hugging Face Model](https://img.shields.io/badge/🤗_Hugging_Face-model-FFD21E)](https://huggingface.co/CaiYuanhao/DiffusionGS)
-[![MrNeRF](https://img.shields.io/badge/Media-MrNeRF-FFD21E)](https://x.com/janusch_patas/status/1859867424859856997)
+[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Dataset-yellow)](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS)
+[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-yellow)](https://huggingface.co/CaiYuanhao/DiffusionGS)
+[![MrNeRF](https://img.shields.io/badge/media-MrNeRF-yellow)](https://x.com/janusch_patas/status/1859867424859856997)
+
 <h3>Baking Gaussian Splatting into Diffusion Denoiser for Fast and <br> Scalable Single-stage Image-to-3D Generation and Reconstruction</h3> 
 
 </div>
@@ -146,7 +147,7 @@ For object-centric image-to-3D generation model, we provide a single-line script
 ```shell
 python run.py
 ```
-This code will automatically download the model checkpoints and config files from [HuggingFace](). Or you can manually download it from [this link](https://huggingface.co/coast01/LVSM/tree/main) and set it to local dir.
+This code will automatically download the model checkpoints and config files from [HuggingFace](https://huggingface.co/CaiYuanhao/DiffusionGS). Or you can manually download them from [this link](https://huggingface.co/CaiYuanhao/DiffusionGS) and set them to a local path.
 
 
 &nbsp;

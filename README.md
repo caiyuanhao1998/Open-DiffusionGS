@@ -168,7 +168,7 @@ Launch the single-image scene generation demo:
 python scene_demo.py
 ```
 
-Open `http://127.0.0.1:7860`, upload an indoor or outdoor scene image, select a trajectory, and click **Generate scene & video**. A bundled RealEstate10K room image is provided to get started. Images are center cropped to square; scene backgrounds are retained.
+Open `http://127.0.0.1:7860`, upload an indoor or outdoor scene image, select a trajectory, and click **Generate scene & video**. Seven clickable scene examples are provided: a living room, museum interior, kitchen, city street, urban buildings, garden path, and mountain lake. Selecting an example loads it into the input image without changing the camera settings. Images are center cropped to square; scene backgrounds are retained. The original room comes from the bundled RealEstate10K example; the six additional photos have [source and license credits](extra_files/scene_examples/README.md).
 
 The interactive 3D preview updates when camera settings change. Drag to rotate and scroll to zoom. Camera frusta and arrows show both position and viewing direction, including for pure rotation. Pink marks the input camera, gold marks the three generated keyframes, and green arrows show travel direction. The preview, model conditioning, exported cameras, and rendered video all use the same camera path.
 

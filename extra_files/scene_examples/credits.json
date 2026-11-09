@@ -1,0 +1,62 @@
+[
+  {
+    "file": "museum_room.jpg",
+    "label": "Museum interior",
+    "title": "Living Room - Vizcaya Museum and Gardens - Miami, Florida - DSC08344.jpg",
+    "author": "Daderot",
+    "source": "https://commons.wikimedia.org/wiki/File:Living_Room_-_Vizcaya_Museum_and_Gardens_-_Miami,_Florida_-_DSC08344.jpg",
+    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Living_Room_-_Vizcaya_Museum_and_Gardens_-_Miami%2C_Florida_-_DSC08344.jpg/960px-Living_Room_-_Vizcaya_Museum_and_Gardens_-_Miami%2C_Florida_-_DSC08344.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+    "file": "kitchen.jpg",
+    "label": "Kitchen",
+    "title": "RestaurantKitchen2.jpg",
+    "author": "Raysonho @ Open Grid Scheduler / Grid Engine",
+    "source": "https://commons.wikimedia.org/wiki/File:RestaurantKitchen2.jpg",
+    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/RestaurantKitchen2.jpg/960px-RestaurantKitchen2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "file": "city_street.jpg",
+    "label": "City street",
+    "title": "Street scene with walkway and cars and buildings and trees.jpg",
+    "author": "Tomwsulcer",
+    "source": "https://commons.wikimedia.org/wiki/File:Street_scene_with_walkway_and_cars_and_buildings_and_trees.jpg",
+    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Street_scene_with_walkway_and_cars_and_buildings_and_trees.jpg/960px-Street_scene_with_walkway_and_cars_and_buildings_and_trees.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "file": "london_buildings.jpg",
+    "label": "Urban buildings",
+    "title": "Lime Street buildings, City of London.jpg",
+    "author": "Robert von Oliva (naruciakk)",
+    "source": "https://commons.wikimedia.org/wiki/File:Lime_Street_buildings,_City_of_London.jpg",
+    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Lime_Street_buildings%2C_City_of_London.jpg/960px-Lime_Street_buildings%2C_City_of_London.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "file": "garden_path.jpg",
+    "label": "Garden path",
+    "title": "English Garden Path.jpg",
+    "author": "Robert Brink",
+    "source": "https://commons.wikimedia.org/wiki/File:English_Garden_Path.jpg",
+    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/English_Garden_Path.jpg/960px-English_Garden_Path.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "file": "mountain_lake.jpg",
+    "label": "Mountain lake",
+    "title": "Mountain lake in Alps.jpg",
+    "author": "Unknown author",
+    "source": "https://commons.wikimedia.org/wiki/File:Mountain_lake_in_Alps.jpg",
+    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Mountain_lake_in_Alps.jpg/960px-Mountain_lake_in_Alps.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  }
+]

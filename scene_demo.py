@@ -14,6 +14,16 @@ from camera_trajectories import TRAJECTORY_PRESETS, build_trajectory, trajectory
 
 
 EXAMPLE_IMAGE = Path(__file__).parent / "extra_files/test_cases/scene_room.png"
+EXAMPLE_DIRECTORY = Path(__file__).parent / "extra_files/scene_examples"
+SCENE_EXAMPLES = [
+    ("Living room", EXAMPLE_IMAGE),
+    ("Museum interior", EXAMPLE_DIRECTORY / "museum_room.jpg"),
+    ("Kitchen", EXAMPLE_DIRECTORY / "kitchen.jpg"),
+    ("City street", EXAMPLE_DIRECTORY / "city_street.jpg"),
+    ("Urban buildings", EXAMPLE_DIRECTORY / "london_buildings.jpg"),
+    ("Garden path", EXAMPLE_DIRECTORY / "garden_path.jpg"),
+    ("Mountain lake", EXAMPLE_DIRECTORY / "mountain_lake.jpg"),
+]
 
 
 def preview_trajectory(preset, translation_scale, rotation_degrees, fov_degrees,
@@ -130,8 +140,14 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
         with gr.Row():
             with gr.Column(scale=1):
                 image = gr.Image(value=str(EXAMPLE_IMAGE), type="pil", image_mode="RGB",
-                                 label="1 · Scene image", height=280)
+                                 label="1 · Scene image", height=280, elem_id="scene-input")
                 gr.Markdown("Images are center cropped to square. Keep the scene background.")
+                gr.Examples(
+                    examples=[[str(path)] for _, path in SCENE_EXAMPLES],
+                    inputs=[image], examples_per_page=len(SCENE_EXAMPLES),
+                    label="Scene examples · click to select", cache_examples=False,
+                    api_name=False, elem_id="scene-examples",
+                )
                 preset = gr.Dropdown(list(TRAJECTORY_PRESETS), value="Spiral forward",
                                      label="2 · Camera trajectory")
                 translation = gr.Slider(0, 2, value=1, step=0.05, label="Translation scale")

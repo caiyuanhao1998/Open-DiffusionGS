@@ -6,9 +6,8 @@
 [![Project](https://img.shields.io/badge/Project-page-2EA44F)](https://caiyuanhao1998.github.io/project/DiffusionGS/)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Dataset-yellow)](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-yellow)](https://huggingface.co/CaiYuanhao/DiffusionGS)
-[![Object Demo](https://img.shields.io/badge/🤗%20Online%20Demo-Object-yellow)](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Object)
-[![Scene Demo](https://img.shields.io/badge/🤗%20Online%20Demo-Scene-yellow)](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Scene)
-[![MrNeRF](https://img.shields.io/badge/media-MrNeRF-yellow)](https://x.com/janusch_patas/status/1859867424859856997)
+[![Object Demo](https://img.shields.io/badge/🤗%20Demo-Object-yellow)](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Object)
+[![Scene Demo](https://img.shields.io/badge/🤗%20Demo-Scene-yellow)](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Scene)
 
 <h3>Baking Gaussian Splatting into Diffusion Denoiser for Fast and <br> Scalable Single-stage Image-to-3D Generation and Reconstruction</h3> 
 

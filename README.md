@@ -172,10 +172,11 @@ Open `http://127.0.0.1:7860`, upload an indoor or outdoor scene image, select a 
 
 The interactive 3D preview updates when camera settings change. Drag to rotate and scroll to zoom. Camera frusta and arrows show both position and viewing direction, including for pure rotation. Pink marks the input camera, gold marks the three generated keyframes, and green arrows show travel direction. The preview, model conditioning, exported cameras, and rendered video all use the same camera path.
 
-There are 16 trajectory presets:
+There are 17 trajectory presets. **Spiral forward** is the first and default option; the other presets retain their existing order. It completes one turn while continuously moving forward and keeping the camera facing forward. Translation scale controls the overall travel distance.
 
 | Camera motion | Presets |
 | --- | --- |
+| Spiral | Forward (default) |
 | Dolly | Forward, backward |
 | Truck | Left, right |
 | Pedestal | Up, down |
@@ -199,7 +200,7 @@ CUDA_VISIBLE_DEVICES=0 python scene_demo.py \
 
 The local model directory should contain `scene_ckpt_256.ckpt` and/or `scene_ckpt_512.ckpt` for the resolutions you want to use. Omit `--model-dir` to download from `CaiYuanhao/DiffusionGS`. Use `--server-name 0.0.0.0` for remote access or `--share` to request a Gradio share link.
 
-Each generation saves an H.264 MP4, a Gaussian PLY, the processed input image, camera parameters, and run metadata in a separate output directory. The UI provides video playback, four keyframe views, and PLY/JSON downloads. Camera JSON stores OpenCV **camera-to-world** matrices (+X right, +Y down, +Z forward), pixel-space `(fx, fy, cx, cy)` intrinsics, and the four conditioning frame indices. Translation is normalized using the RealEstate10K convention before applying the selected motion scale. The 3D preview displays the same coordinates with the vertical axis flipped upward for readability.
+Each generation saves an H.264 MP4, a Gaussian PLY, the processed input image, camera parameters, and run metadata in a separate output directory. The UI provides video playback, four keyframe views, and a **Download point cloud (.ply)** button that becomes available after successful generation. The PLY contains XYZ positions, RGB colors, and the full Gaussian attributes. Camera JSON stores OpenCV **camera-to-world** matrices (+X right, +Y down, +Z forward), pixel-space `(fx, fy, cx, cy)` intrinsics, and the four conditioning frame indices. Translation is normalized using the RealEstate10K convention before applying the selected motion scale. The 3D preview displays the same coordinates with the vertical axis flipped upward for readability.
 
 The demo uses `diffusionGS/pipeline_scene.py` for scene inference without loading training losses. Camera-control interaction and frustum visualization are inspired by [CameraCtrl](https://github.com/hehao13/CameraCtrl); no CameraCtrl model is required. Keep the Pydantic constraint in `requirement.txt` when using Gradio 5.5.0, whose API schema parser is incompatible with Pydantic 2.11+.
 

@@ -132,7 +132,7 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
                 image = gr.Image(value=str(EXAMPLE_IMAGE), type="pil", image_mode="RGB",
                                  label="1 · Scene image", height=280)
                 gr.Markdown("Images are center cropped to square. Keep the scene background.")
-                preset = gr.Dropdown(list(TRAJECTORY_PRESETS), value="Dolly forward",
+                preset = gr.Dropdown(list(TRAJECTORY_PRESETS), value="Spiral forward",
                                      label="2 · Camera trajectory")
                 translation = gr.Slider(0, 2, value=1, step=0.05, label="Translation scale")
                 rotation = gr.Slider(0, 45, value=15, step=1, label="Rotation (degrees)")
@@ -148,7 +148,7 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
                     fps = gr.Slider(8, 30, value=24, step=1, label="Video FPS")
                 generate = gr.Button("Generate scene & video", variant="primary")
             with gr.Column(scale=2):
-                plot = gr.Plot(value=preview_trajectory("Dolly forward", 1, 15, 60, 60, 256),
+                plot = gr.Plot(value=preview_trajectory("Spiral forward", 1, 15, 60, 60, 256),
                                label="Camera trajectory · drag to rotate / scroll to zoom")
                 gr.Markdown("**Pink:** input camera · **Gold:** three generated keyframes · "
                             "**Green arrows:** travel direction. Camera pyramids and arrows show viewing direction. "
@@ -158,8 +158,10 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
                 status = gr.Markdown("Choose an image and a camera path, then generate.")
                 gallery = gr.Gallery(label="Generated keyframe views", columns=4, height=230)
                 with gr.Row():
-                    ply = gr.File(label="Download 3D Gaussian scene (.ply)")
+                    ply = gr.DownloadButton("Download point cloud (.ply)",
+                                            variant="primary", interactive=False)
                     camera_file = gr.File(label="Download camera trajectory (.json)")
+                gr.Markdown("The point cloud download becomes available after generation.")
         gr.Markdown("Trajectory visualization and camera-control interaction inspired by "
                     "[CameraCtrl](https://github.com/hehao13/CameraCtrl). "
                     "All scene generation uses the released DiffusionGS scene checkpoints.")
@@ -168,12 +170,14 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
                       api_name="preview_trajectory", queue=False)
         for control in camera_inputs:
             control.change(preview_trajectory, camera_inputs, plot, queue=False, api_name=False)
-        generate.click(
+        generation = generate.click(
             service.generate,
             [image, preset, translation, rotation, fov, frames, resolution, steps, seed, fps],
             [video, gallery, ply, camera_file, plot, status],
             api_name="generate_scene", concurrency_limit=1,
         )
+        generation.success(lambda: gr.update(interactive=True), outputs=ply,
+                           queue=False, api_name=False)
     return demo.queue(max_size=8, default_concurrency_limit=1)
 
 

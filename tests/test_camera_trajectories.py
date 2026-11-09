@@ -7,6 +7,30 @@ from camera_trajectories import TRAJECTORY_PRESETS, build_trajectory, trajectory
 
 
 class CameraTrajectoryTests(unittest.TestCase):
+    def test_spiral_is_default_and_existing_presets_keep_their_order(self):
+        self.assertEqual(TRAJECTORY_PRESETS[0], "Spiral forward")
+        self.assertEqual(build_trajectory().preset, "Spiral forward")
+        self.assertEqual(TRAJECTORY_PRESETS[1:], (
+            "Dolly forward", "Dolly backward", "Truck left", "Truck right",
+            "Pedestal up", "Pedestal down", "Pan left", "Pan right",
+            "Tilt up", "Tilt down", "Orbit left", "Orbit right",
+            "Crane forward", "S-curve", "Figure eight", "Static",
+        ))
+
+    def test_spiral_advances_along_a_circle_with_forward_facing_cameras(self):
+        path = build_trajectory("Spiral forward", num_frames=61)
+        relative = np.linalg.inv(path.c2ws[0]) @ path.c2ws
+        positions = relative[:, :3, 3]
+        self.assertTrue((np.diff(positions[:, 2]) > 0).all())
+        # A full helix turn returns to its lateral start, but ends farther ahead.
+        np.testing.assert_allclose(positions[-1, :2], positions[0, :2], atol=1e-6)
+        radius = 0.25 * positions[-1, 2]
+        radial_distance = np.linalg.norm(positions[:, :2] + [radius, 0], axis=1)
+        np.testing.assert_allclose(radial_distance, radius, atol=1e-6)
+        self.assertGreater(np.ptp(positions[:, 1]), radius)
+        np.testing.assert_allclose(relative[:, :3, :3],
+                                   np.tile(np.eye(3), (61, 1, 1)), atol=1e-6)
+
     def test_all_presets_are_valid_opencv_cameras(self):
         for name in TRAJECTORY_PRESETS:
             with self.subTest(preset=name):

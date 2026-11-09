@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 
 
 TRAJECTORY_PRESETS = (
+    "Spiral forward",
     "Dolly forward", "Dolly backward", "Truck left", "Truck right",
     "Pedestal up", "Pedestal down", "Pan left", "Pan right",
     "Tilt up", "Tilt down", "Orbit left", "Orbit right",
@@ -36,7 +37,7 @@ class CameraTrajectory:
         }
 
 
-def build_trajectory(preset="Dolly forward", translation_scale=1.0,
+def build_trajectory(preset="Spiral forward", translation_scale=1.0,
                      rotation_degrees=15.0, fov_degrees=60.0,
                      num_frames=60, resolution=256):
     """Build a dense path and its four conditioning cameras.
@@ -65,7 +66,14 @@ def build_trajectory(preset="Dolly forward", translation_scale=1.0,
     poses = np.repeat(np.eye(4)[None], num_frames, axis=0)
     positions = poses[:, :3, 3]
     yaw, pitch = np.zeros(num_frames), np.zeros(num_frames)
-    if preset in ("Dolly forward", "Dolly backward"):
+    if preset == "Spiral forward":
+        # One helix turn around the forward axis, starting at the input pose.
+        # Keep the camera looking forward; translation scale controls travel.
+        phase = 2 * np.pi * t
+        positions[:, 0] = 0.25 * (np.cos(phase) - 1)
+        positions[:, 1] = 0.25 * np.sin(phase)
+        positions[:, 2] = t
+    elif preset in ("Dolly forward", "Dolly backward"):
         positions[:, 2] = t * (1 if preset == "Dolly forward" else -1)
     elif preset in ("Truck left", "Truck right"):
         positions[:, 0] = t * (-1 if preset == "Truck left" else 1)

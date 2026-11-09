@@ -154,71 +154,35 @@ pip install torch==2.5.1 torchvision==0.20.1 xformers==0.0.29.post1 --index-url 
 
 ### 2.1 Object Generation
 
-Launch the object generation **Gradio UI** with:
-```shell
-python object_demo.py
-```
-Open `http://127.0.0.1:7863`. Upload an object image or select one of seven bundled examples, then click **Generate object**. The UI shows four rendered views and an interactive 3D point cloud, with full Gaussian PLY and PNG downloads. **Extract mesh** reuses the generated Gaussians to create an OBJ and a mesh preview; it runs separately because mesh extraction can take several minutes. Generating another object clears the previous mesh output. The point-cloud preview displays up to 5,000 points; the downloaded PLY contains all points and Gaussian attributes.
-
-The mesh preview uses a separate Y-up asset for the web viewer; the downloaded OBJ retains the model's original coordinates.
-
-For the original command-line inference and automatic mesh export, run:
+Command-line inference:
 
 ```sh
 python object_infer.py
 ```
 
-Both entrypoints use the model checkpoints and config files from [HuggingFace](https://huggingface.co/CaiYuanhao/DiffusionGS). For the web UI, `--model-dir /path/to/DiffusionGS` selects local weights, `--output-dir /path/to/results` selects the output folder, and `--server-name 0.0.0.0 --server-port 7863` enables access through the server's network address. The directory must contain `obj_ckpt_512.ckpt`, `obj_configs.yaml`, and `camera_template.pt`.
+Gradio demo:
 
-### 2.2 Scene Generation with Camera Control (Gradio)
+```sh
+python object_demo.py
+```
 
-Launch the single-image scene generation demo:
+Open http://127.0.0.1:7863 in your browser.
+
+### 2.2 Scene Generation
+
+Command-line inference:
+
+```sh
+python scene_infer.py
+```
+
+Gradio demo:
 
 ```sh
 python scene_demo.py
 ```
 
-Open `http://127.0.0.1:7860`, upload an indoor or outdoor scene image, select a trajectory, and click **Generate scene & video**. Three clickable **256x256** RealEstate10K reference images are provided: the original room image, an open kitchen, and a home office. The two additional images are extracted from the RealEstate10K reference clips distributed by CameraCtrl; [source clips, scene IDs, and extraction details](extra_files/scene_examples/README.md) are recorded alongside the images. Selecting an example loads it into the input image without changing the camera settings. Uploaded images are center cropped to square; scene backgrounds are retained.
-
-The interactive 3D preview updates when camera settings change. Drag to rotate and scroll to zoom. Camera frusta and arrows show both position and viewing direction, including for pure rotation. Pink marks the input camera, gold marks the three generated keyframes, and green arrows show travel direction. The preview shows the forward half of the path; the second half of the video retraces the same poses in reverse order.
-
-There are 17 trajectory presets. **Spiral forward** is the first and default option; the other presets retain their existing order. It completes **three small turns** while continuously moving forward and keeping the camera facing forward. The spiral radius is 5% of the forward travel distance. Translation scale controls the overall travel distance. Its middle conditioning cameras use different spiral phases to capture lateral motion instead of all falling on the same straight line.
-
-| Camera motion | Presets |
-| --- | --- |
-| Spiral | Forward (default) |
-| Dolly | Forward, backward |
-| Truck | Left, right |
-| Pedestal | Up, down |
-| Pan | Left, right |
-| Tilt | Up, down |
-| Orbit | Left, right |
-| Combined paths | Crane forward, S-curve, figure eight |
-| Fixed camera | Static |
-
-Adjust translation scale, rotation angle, field of view, seed, diffusion steps, video duration, and FPS. Videos default to **10 seconds at 24 FPS (240 frames): 5 seconds forward, then 5 seconds in reverse**. Only the forward 120 frames are rendered. Their uint8 pixels are cached on the CPU and appended in reverse order for the return trip, with no extra GPU rendering or diffusion. Both endpoint frames are retained for exactly equal half durations. The duration control sets the total round-trip length in even seconds; changing FPS preserves that duration and updates the forward preview's frame count. Both released scene checkpoints (256px and 512px) are supported and downloaded on first use. Only one model is retained on the GPU when switching resolution. The model generates a scene from four conditioning cameras; video frames are rendered from that Gaussian scene. Small motions generally give better scene coverage than large extrapolations.
-
-To select a GPU, use local checkpoints, or store outputs outside the repository:
-
-```sh
-CUDA_VISIBLE_DEVICES=0 python scene_demo.py \
-  --model-dir /path/to/DiffusionGS \
-  --cache-dir /path/to/huggingface-cache \
-  --output-dir /path/to/scene-results \
-  --server-port 7860
-```
-
-The local model directory should contain `scene_ckpt_256.ckpt` and/or `scene_ckpt_512.ckpt` for the resolutions you want to use. Omit `--model-dir` to download from `CaiYuanhao/DiffusionGS`. Use `--server-name 0.0.0.0` for remote access or `--share` to request a Gradio share link.
-
-Each generation saves an H.264 MP4, a Gaussian PLY, the processed input image, camera parameters, and run metadata in a separate output directory. The UI provides video playback, four keyframe views, and a **Download point cloud (.ply)** button that becomes available after successful generation. The PLY contains XYZ positions, RGB colors, and the full Gaussian attributes. Camera JSON stores OpenCV **camera-to-world** matrices (+X right, +Y down, +Z forward), pixel-space `(fx, fy, cx, cy)` intrinsics for every playback frame, the four forward conditioning frame indices, and a playback-to-rendered-frame index map. Duration and rendered-frame metadata distinguish the full video from its rendered forward half. Translation is normalized using the RealEstate10K convention before applying the selected motion scale. The 3D preview displays the same coordinates with the vertical axis flipped upward for readability.
-
-The demo uses `diffusionGS/pipeline_scene.py` for scene inference without loading training losses. Camera-control interaction and frustum visualization are inspired by [CameraCtrl](https://github.com/hehao13/CameraCtrl); no CameraCtrl model is required. Keep the Pydantic constraint in `requirement.txt` when using Gradio 5.5.0, whose API schema parser is incompatible with Pydantic 2.11+.
-
-Camera geometry checks can be run without loading model checkpoints:
-
-```sh
-python -m unittest discover -s tests -v
-```
+Open http://127.0.0.1:7860 in your browser.
 
 &nbsp;
 

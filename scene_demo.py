@@ -208,9 +208,6 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
                                             variant="primary", interactive=False)
                     camera_file = gr.File(label="Download camera trajectory (.json)")
                 gr.Markdown("The point cloud download becomes available after generation.")
-        gr.Markdown("Trajectory visualization and camera-control interaction inspired by "
-                    "[CameraCtrl](https://github.com/hehao13/CameraCtrl). "
-                    "All scene generation uses the released DiffusionGS scene checkpoints.")
         camera_inputs = [preset, translation, rotation, fov, duration, resolution, fps]
         preview.click(preview_trajectory, camera_inputs, plot,
                       api_name="preview_trajectory", queue=False)

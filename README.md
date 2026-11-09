@@ -152,15 +152,14 @@ pip install torch==2.5.1 torchvision==0.20.1 xformers==0.0.29.post1 --index-url 
 
 ## 2. Quick Demo
 
+<p align="center">
+  <img src="img/demos/object_demo.png" height="420" alt="Object generation Gradio demo">
+  <img src="img/demos/scene_demo.png" height="420" alt="Scene generation Gradio demo">
+</p>
+
 ### 2.1 Object Generation
 
 Generate a 3D object from a single reference image, with rendered views, a Gaussian point cloud, and optional mesh extraction. The Gradio demo lets you upload an image or try a bundled example, preview the result, and download the generated assets.
-
-Command-line inference:
-
-```sh
-python object_infer.py
-```
 
 Gradio demo:
 
@@ -170,15 +169,15 @@ python object_demo.py
 
 Open http://127.0.0.1:7863 in your browser.
 
-### 2.2 Scene Generation
-
-Generate a 3D scene from a single reference image and render a video of the reconstructed scene. The Gradio demo includes example images, previews of the generated views and video, and point-cloud downloads.
-
 Command-line inference:
 
 ```sh
-python scene_infer.py
+python object_infer.py
 ```
+
+### 2.2 Scene Generation
+
+Generate a 3D scene from a single reference image and render a video of the reconstructed scene. The Gradio demo includes example images, previews of the generated views and video, and point-cloud downloads.
 
 Gradio demo:
 
@@ -187,6 +186,12 @@ python scene_demo.py
 ```
 
 Open http://127.0.0.1:7860 in your browser.
+
+Command-line inference:
+
+```sh
+python scene_infer.py
+```
 
 &nbsp;
 

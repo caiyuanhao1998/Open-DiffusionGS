@@ -104,7 +104,7 @@ class ObjectDemo:
             }, indent=2))
             progress(1, desc="Object ready")
             return (views, point_cloud_figure(xyz, colors), str(directory / "test.ply"),
-                    str(directory / "test.png"), None, None, str(directory),
+                    str(directory / "test.png"), None, None, None, str(directory),
                     f"**Done.** {len(xyz):,} Gaussians · {elapsed:.1f}s. Mesh export is available below.",
                     "Mesh has not been extracted for this object.")
 
@@ -134,27 +134,50 @@ class ObjectDemo:
                 report.update(mesh_exported=True, mesh_seconds=time.perf_counter() - start,
                               mesh_vertices=len(mesh.vertices), mesh_faces=len(mesh.faces))
                 (directory / "result.json").write_text(json.dumps(report, indent=2))
-            preview_path = directory / "mesh_preview.obj"
-            if not preview_path.is_file() or preview_path.stat().st_mtime < destination.stat().st_mtime:
+            from diffusionGS.utils.mesh_preview import export_colored_mesh, PREVIEW_VERSION
+            preview_path = directory / "mesh_preview.glb"
+            report = json.loads((directory / "result.json").read_text())
+            if (not preview_path.is_file()
+                    or report.get("mesh_preview_version") != PREVIEW_VERSION
+                    or preview_path.stat().st_mtime < max(destination.stat().st_mtime,
+                                                          (directory / "test.ply").stat().st_mtime)):
                 import trimesh
-                preview_mesh = trimesh.load(destination, force="mesh", process=False)
-                # The web viewer is Y-up; retain the model's original Z-up OBJ
-                # for download and rotate only the separate preview asset.
-                preview_mesh.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))
-                preview_mesh.export(preview_path)
+                progress(0.95, desc="Adding mesh colors")
+                mesh = trimesh.load(destination, force="mesh", process=False)
+                export_colored_mesh(mesh, directory / "test.ply", destination, preview_path)
+                report.update(mesh_preview_version=PREVIEW_VERSION, colored_mesh=True)
+                (directory / "result.json").write_text(json.dumps(report, indent=2))
             progress(1, desc="Mesh ready")
-            return str(preview_path), str(destination), "**Mesh ready.** Preview or download the OBJ below."
+            return (str(preview_path), str(destination), str(preview_path),
+                    "**Mesh ready.** Rotate the color preview or download the GLB / OBJ below.")
 
 
-def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_demo", device="cuda:0", *, service=None):
+def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_demo", device="cuda:0", *,
+               service=None, resume_result=None):
     service = service if service is not None else ObjectDemo(model_dir, output_dir, device)
+    restored = None
+    gallery_value, cloud_value = None, None
+    if resume_result is not None:
+        directory = Path(resume_result).resolve()
+        # Restoring is explicit for a local launch, never shared between Space visitors.
+        if not directory.is_relative_to(service.output_dir) or not (directory / "input.png").is_file():
+            raise ValueError("The restored result must be inside the demo output directory.")
+        restored = service.extract_mesh(str(directory))
+        from diffusionGS.utils.mesh_preview import read_gaussian_colors
+        xyz, rgb, _ = read_gaussian_colors(directory / "test.ply")
+        cloud_value = point_cloud_figure(xyz, np.rint(rgb * 255).astype(np.uint8))
+        with Image.open(directory / "test.png") as grid:
+            size = grid.height - 4
+            gallery_value = [(grid.crop((2 + i * (size + 2), 2, 2 + i * (size + 2) + size, 2 + size)),
+                              f"View {i + 1}") for i in range(4)]
     with gr.Blocks(title="DiffusionGS · Object Generation", theme=gr.themes.Soft()) as demo:
-        result_directory = gr.State()
+        result_directory = gr.State(str(directory) if restored else None)
         gr.Markdown("# DiffusionGS · Object Generation\n"
                     "Generate a 3D object from one image, then optionally extract its mesh.")
         with gr.Row():
             with gr.Column(scale=1):
-                image = gr.Image(value=str(OBJECT_EXAMPLES[0]), type="pil", image_mode="RGBA",
+                image = gr.Image(value=str(directory / "input.png") if restored else str(OBJECT_EXAMPLES[0]),
+                                 type="pil", image_mode="RGBA",
                                  label="Object image", height=300, elem_id="object-input")
                 gr.Examples([[str(path)] for path in OBJECT_EXAMPLES], inputs=[image],
                             examples_per_page=7, label="Object examples · click to select",
@@ -166,33 +189,47 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_de
                 gr.Markdown("Background removal runs automatically for opaque images. "
                             "Transparent images can use their existing alpha mask.")
             with gr.Column(scale=2):
-                views = gr.Gallery(label="Rendered object views", columns=4, height=270)
-                cloud = gr.Plot(label="3D point cloud · drag to rotate / scroll to zoom")
+                views = gr.Gallery(value=gallery_value, label="Rendered object views", columns=4, height=270)
+                cloud = gr.Plot(value=cloud_value, label="3D point cloud · drag to rotate / scroll to zoom")
                 gr.Markdown("The preview shows up to 5,000 points; the PLY download contains the full object.")
-                status = gr.Markdown("Choose an image and generate an object.")
+                status = gr.Markdown("Previous object restored. Preview or download the result below."
+                                     if restored else "Choose an image and generate an object.")
                 with gr.Row():
-                    ply = gr.DownloadButton("Download point cloud (.ply)", interactive=False)
-                    png = gr.DownloadButton("Download rendered views (.png)", interactive=False)
-                mesh_button = gr.Button("Extract mesh", interactive=False)
+                    ply = gr.DownloadButton("Download point cloud (.ply)",
+                                            value=str(directory / "test.ply") if restored else None,
+                                            interactive=bool(restored))
+                    png = gr.DownloadButton("Download rendered views (.png)",
+                                            value=str(directory / "test.png") if restored else None,
+                                            interactive=bool(restored))
+                mesh_button = gr.Button("Extract mesh", interactive=bool(restored))
                 gr.Markdown("Mesh extraction is optional and can take several minutes. "
                             "It reuses the generated object without another diffusion pass.")
-                mesh_status = gr.Markdown()
-                mesh_preview = gr.Model3D(label="Mesh preview", height=350, interactive=False)
-                obj = gr.DownloadButton("Download mesh (.obj)", interactive=False)
+                mesh_status = gr.Markdown(restored[3] if restored else None)
+                mesh_preview = gr.Model3D(value=restored[0] if restored else None,
+                                          label="Color mesh preview", height=450, interactive=False,
+                                          display_mode="solid", clear_color=(1, 1, 1, 1),
+                                          camera_position=(75, 75, None))
+                with gr.Row():
+                    glb = gr.DownloadButton("Download color mesh (.glb)",
+                                            value=restored[2] if restored else None, interactive=bool(restored))
+                    obj = gr.DownloadButton("Download mesh (.obj)",
+                                            value=restored[1] if restored else None, interactive=bool(restored))
         generation = generate.click(
             service.generate, [image, seed, ratio, force],
-            [views, cloud, ply, png, mesh_preview, obj, result_directory, status, mesh_status],
+            [views, cloud, ply, png, mesh_preview, obj, glb, result_directory, status, mesh_status],
             api_name="generate_object", concurrency_id="object_gpu", concurrency_limit=1,
         )
         generation.success(
             lambda: (gr.update(interactive=True), gr.update(interactive=True),
-                     gr.update(interactive=True), gr.update(interactive=False)),
-            outputs=[ply, png, mesh_button, obj], queue=False, api_name=False,
+                     gr.update(interactive=True), gr.update(interactive=False),
+                     gr.update(interactive=False)),
+            outputs=[ply, png, mesh_button, obj, glb], queue=False, api_name=False,
         )
         extraction = mesh_button.click(service.extract_mesh, [result_directory],
-                                       [mesh_preview, obj, mesh_status], api_name="extract_mesh",
+                                       [mesh_preview, obj, glb, mesh_status], api_name="extract_mesh",
                                        concurrency_id="object_gpu", concurrency_limit=1)
-        extraction.success(lambda: gr.update(interactive=True), outputs=obj, queue=False, api_name=False)
+        extraction.success(lambda: (gr.update(interactive=True), gr.update(interactive=True)),
+                           outputs=[obj, glb], queue=False, api_name=False)
     return demo.queue(max_size=8, default_concurrency_limit=1)
 
 
@@ -204,8 +241,9 @@ def main():
     parser.add_argument("--server-name", default="127.0.0.1")
     parser.add_argument("--server-port", type=int, default=7863)
     parser.add_argument("--share", action="store_true")
+    parser.add_argument("--resume-result", help="Restore an existing local demo result without regenerating it")
     args = parser.parse_args()
-    demo = build_demo(args.model_dir, args.output_dir, args.device)
+    demo = build_demo(args.model_dir, args.output_dir, args.device, resume_result=args.resume_result)
     demo.launch(server_name=args.server_name, server_port=args.server_port,
                 share=args.share, show_error=True, allowed_paths=[str(Path(args.output_dir).resolve())])
 

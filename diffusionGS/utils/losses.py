@@ -288,7 +288,7 @@ class LossComputer(nn.Module):
         if img_aligned_xyz is not None and gt_img_aligned_xyz is not None:
             l2_loss_xyz = torch.ones(b, device=rendering.device) * 1e-8
             per_element_loss_xyz = F.mse_loss(img_aligned_xyz * masks, gt_img_aligned_xyz * masks, reduction='sum')
-            l2_loss_xyz = per_element_loss_xyz/masks.sum()
+            l2_loss_xyz = per_element_loss_xyz / masks.sum(dtype=torch.float32).clamp_min(1e-8)
         else:
             l2_loss_xyz = torch.zeros_like(l2_loss)
         ## depth loss

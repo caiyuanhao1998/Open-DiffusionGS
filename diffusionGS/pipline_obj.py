@@ -2,12 +2,14 @@ import os
 import warnings
 from typing import Callable, List, Optional, Union, Dict, Any
 import PIL.Image
+from PIL import ImageOps
 import trimesh
 import torch
 import numpy as np
 from huggingface_hub import hf_hub_download
 from diffusers.utils import BaseOutput
 import torch.nn.functional as F
+import torchvision.transforms.functional as TF
 import diffusionGS
 from diffusionGS.utils.config import ExperimentConfig, load_config
 from diffusionGS.systems.utils import *
@@ -90,6 +92,10 @@ class DiffusionGSPipeline():
         """
         if isinstance(image, str):
             assert os.path.isfile(image) or image.startswith("http"), "Input image must be a valid URL or a file path."
+        elif isinstance(image, torch.Tensor):
+            if (image.ndim not in (3, 4) or image.shape[-3] not in (3, 4)
+                    or (image.ndim == 4 and image.shape[0] != 1)):
+                raise ValueError("Provide one RGB/RGBA tensor with shape [C, H, W] or [1, C, H, W].")
         elif not isinstance(image, (torch.Tensor, PIL.Image.Image)):
             raise ValueError("Input image must be a `torch.Tensor` or `PIL.Image.Image`.")
         
@@ -110,9 +116,11 @@ class DiffusionGSPipeline():
         Returns:
             `List[PIL.Image.Image]`: List of `PIL.Image.Image` objects representing the preprocessed image.
         """
+        if not np.isfinite(foreground_ratio) or not 0 < foreground_ratio <= 1:
+            raise ValueError("Foreground ratio must be finite and in (0, 1].")
         preprocessed_images = []
         for i in range(len(images_pil)):
-            image = images_pil[i]
+            image = ImageOps.exif_transpose(images_pil[i]).convert("RGBA")
             width, height, size = image.width, image.height, image.size
             do_remove = True
             if image.mode == "RGBA" and image.getextrema()[3][0] < 255:
@@ -127,10 +135,12 @@ class DiffusionGSPipeline():
             # calculate the min bbox of the image
             alpha = image.split()[-1]
             bboxs = alpha.getbbox()
+            if bboxs is None:
+                raise ValueError("No foreground remains in the image; use an image with a visible object.")
             x1, y1, x2, y2 = bboxs
             dy, dx = y2 - y1, x2 - x1
             s = min(height * foreground_ratio / dy, width * foreground_ratio / dx)
-            Ht, Wt = int(dy * s), int(dx * s)
+            Ht, Wt = max(1, int(dy * s)), max(1, int(dx * s))
             
             background = PIL.Image.new("RGBA", image.size, (*background_color, 255))
             image = PIL.Image.alpha_composite(background, image)
@@ -227,7 +237,8 @@ class DiffusionGSPipeline():
             [`~MeshPipelineOutput`] or `tuple`: [`~MeshPipelineOutput`] if `return_dict` is True, otherwise a `tuple`. 
             When returning a tuple, the first element is a list with the generated meshes.
         """
-        torch.manual_seed(seed)
+        if seed is not None:
+            torch.manual_seed(seed)
         # 0. Check inputs. Raise error if not correct
         self.check_inputs(
             image=image,
@@ -235,6 +246,8 @@ class DiffusionGSPipeline():
 
         # 1. Define call parameters
         if isinstance(image, torch.Tensor):
+            if image.ndim == 3:
+                image = image.unsqueeze(0)
             batch_size = image.shape[0]
         elif isinstance(image, PIL.Image.Image) or isinstance(image, str):
             batch_size = 1

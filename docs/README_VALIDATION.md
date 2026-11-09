@@ -70,3 +70,35 @@ These are host-specific troubleshooting settings, not repository defaults. Apply
 The complete RealEstate10K/G-Objaverse datasets, full benchmark and full-scale training were not run. The small-sample metrics are functional checks and do not reproduce the published table. The README now distinguishes the previously reported release scores from the corrected target-only evaluation protocol. Shared GPU load makes the measured runtimes unsuitable for speed comparisons.
 
 Machine-readable results, command logs, frozen package versions, browser screenshots and outputs were retained in the local audit directory alongside the verified Conda environment.
+
+## Second independent installation and expanded checks
+
+A second checkout of GitHub commit `09240b3` was tested in another newly created Python 3.11 Conda environment. The README's PyTorch installation, requirements installation, both native extension builds and `pip check` all passed without changing the installation instructions. Imports were checked against the new environment and checkout, and the newly compiled KNN kernel matched a brute-force reference. Model/download caches were reused; installed packages and native extensions were installed again.
+
+The expanded checks covered:
+
+| Workflow | Second-pass result |
+| --- | --- |
+| Both default CLI commands | Passed with released checkpoints and 30 diffusion steps. Object inference included the default 256-grid mesh extraction. Scene inference produced the default 256px, 240-frame, ten-second video. |
+| Both default Gradio URLs | Browser generation, previews and PLY downloads passed, with no browser exceptions. Object has seven examples and Scene has three. |
+| Gradio mesh extraction | A real browser generated an object, extracted its mesh and downloaded the OBJ. The downloaded vertices and faces matched the CLI mesh; no browser exceptions occurred. |
+| Every bundled example | All seven Object images passed, including opaque images requiring background removal. All three Scene images passed at both 256px and 512px with 30 steps and ten-second videos. |
+| Every trajectory preset | All 17 presets generated finite point clouds and two-second videos at 256px, ten diffusion steps and 8 FPS. Exported camera sequences exactly retraced the forward path. |
+| RealEstate10K preprocessing | Both README commands passed with ten genuine reference clips, 16 frames each, packaged into two `.torch` chunks per split. |
+| 256px and 512px evaluation | Both passed on ten scenes with different target-view counts, covering 55 targets at each resolution. Saved target indices, image shapes and finite pixels were checked. |
+| Metrics | Actual PSNR, SSIM and LPIPS computation passed with chunks of seven images and with single-image batches. These functional checks are not a reproduction of the published benchmark. |
+| Evaluation videos | The released 512px checkpoint also passed with `system.save_intermediate_video=true`. |
+| All four training scripts | Each completed eight steps with width 128, two layers, 64px inputs, batch size one and two data workers. Default loss calculations, sanity validation, subsequent validation, video output, stage-two checkpoint loading, EMA and nonzero optimizer states were exercised. |
+| Distributed training and resume | Two GPUs completed four steps with the host-specific socket transport settings above. A separate run resumed an eight-step checkpoint and reached step ten. |
+| Object pipeline inputs | Real checkpoint inference passed with the default omitted seed and an RGBA CHW tensor after the fixes below. |
+| Regression tests | All 33 tests passed. |
+
+This pass found and fixed additional issues:
+
+- The object pipeline called `torch.manual_seed(None)` when the optional seed was omitted. Tensor input also referenced an unimported `TF` module. Single-image CHW and BCHW inputs now work, and multi-image tensors are rejected explicitly.
+- Empty foreground masks caused ambiguous preprocessing errors, and very thin foregrounds could resize to zero pixels. Foreground ratios are now validated, missing foregrounds produce a clear error, and dimensions remain at least one pixel. Palette transparency and EXIF orientation are preserved.
+- Empty object foreground masks produced `0 / 0` in the XYZ training loss. Its denominator is now clamped, with a regression check for finite losses.
+- Mesh extraction centered and scaled the Gaussian cloud for density queries but did not undo that transform when exporting vertices. The exported OBJ now uses the cloud's world coordinates. The default result contains 49,529 vertices and 100,000 faces; its vertices matched the previous mesh after the correct world transform to within `1e-8`.
+- Default mesh extraction repeatedly scanned the complete cloud for every tile, including empty tiles. It exceeded the second pass's 20-minute check limit on the busy shared GPU host. A CPU spatial index now selects tile candidates while preserving strict bounds and Gaussian accumulation order. A separate CUDA comparison produced identical density values, and the full default object CLI subsequently completed in 304 seconds. These host timings are observations, not an inference-speed benchmark.
+
+The default Object and Scene PLY files still matched their browser downloads byte for byte, including the SHA-256 values recorded above. The expanded object training fixture contains two generated objects with 40 G-Objaverse-format views each; it is not a real Objaverse training sample. Full-scale training, the complete datasets, the complete benchmark and multi-node training remain untested.

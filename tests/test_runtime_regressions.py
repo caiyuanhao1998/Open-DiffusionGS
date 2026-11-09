@@ -13,7 +13,7 @@ import torch
 from diffusionGS.data.base import BaseDataset as ObjectDataset, BaseDataModuleConfig
 from diffusionGS.data.base_scene import BaseDataset as SceneDataset
 from diffusionGS.utils.checkpoint import load_denoiser_checkpoint
-from diffusionGS.utils.losses import MetricComputer
+from diffusionGS.utils.losses import LossComputer, MetricComputer
 from diffusionGS.utils.misc import get_device, get_rank
 from diffusionGS.utils.callbacks import EarlyEnvironmentSetter
 from diffusionGS.models.denoiser.denoiser_utils import SplitData
@@ -22,6 +22,20 @@ from process_data import process_directory, process_torch_file
 
 
 class RuntimeRegressionTests(unittest.TestCase):
+    def test_empty_foreground_mask_has_finite_training_losses(self):
+        computer = SimpleNamespace(
+            lpips_loss_module=lambda x, y: torch.zeros(len(x), 1, 1, 1),
+            ssim_loss_module=lambda x, y: torch.zeros(len(x)),
+        )
+        images = torch.zeros(1, 4, 3, 16, 16)
+        for dtype in (torch.float32, torch.float16):
+            with self.subTest(mask_dtype=dtype):
+                masks = torch.zeros(1, 4, 1, 16, 16, dtype=dtype)
+                losses = LossComputer.forward(computer, images, images, masks, masks, images,
+                                              img_aligned_xyz=images, gt_img_aligned_xyz=images)
+                self.assertTrue(all(torch.isfinite(loss).all() for loss in losses))
+                self.assertEqual(losses[-1].item(), 0)
+
     def test_distributed_device_uses_local_rank_without_overwriting_global_rank(self):
         trainer = SimpleNamespace(world_size=8, num_devices=4, global_rank=5,
                                   strategy=SimpleNamespace(local_rank=1))

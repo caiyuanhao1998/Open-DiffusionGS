@@ -784,9 +784,12 @@ class GaussianModel:
         self._rotation = torch.from_numpy(rots.astype(np.float32)).contiguous()
 
     def extract_fields(self, resolution=128, num_blocks=16, relax_ratio=1.5):
+        from scipy.spatial import cKDTree
+
+        if num_blocks < 1 or resolution < num_blocks or resolution % num_blocks:
+            raise ValueError("Field resolution must be a positive multiple of num_blocks.")
         # resolution: resolution of field
         block_size = 2 / num_blocks
-        assert resolution % block_size == 0
         split_size = resolution // num_blocks
         ## recenter
         xyzs = self.get_xyz
@@ -810,22 +813,34 @@ class GaussianModel:
         Y = torch.linspace(-1, 1, resolution).split(split_size)
         Z = torch.linspace(-1, 1, resolution).split(split_size)
 
+        # Find each tile's Gaussian centers on the CPU. Scanning the full cloud
+        # and synchronizing mask.any() for every tile is especially slow for
+        # sparse clouds and shared GPUs (64**3 tiles in the default mesh).
+        centers = xyzs.detach().cpu().numpy()
+        tree = cKDTree(centers)
 
         # loop blocks (assume max size of gaussian is small than relax_ratio * block_size !!!)
         for xi, xs in enumerate(X):
             for yi, ys in enumerate(Y):
                 for zi, zs in enumerate(Z):
+                    lower = np.array([xs[0], ys[0], zs[0]], dtype=np.float32) - block_size * relax_ratio
+                    upper = np.array([xs[-1], ys[-1], zs[-1]], dtype=np.float32) + block_size * relax_ratio
+                    midpoint = (lower.astype(np.float64) + upper) / 2
+                    radius = np.max((upper.astype(np.float64) - lower) / 2)
+                    candidates = tree.query_ball_point(midpoint, np.nextafter(radius, np.inf), p=np.inf)
+                    if not candidates:
+                        continue
+                    candidates = np.asarray(candidates, dtype=np.int64)
+                    in_tile = ((centers[candidates] > lower) & (centers[candidates] < upper)).all(-1)
+                    candidates = np.sort(candidates[in_tile])
+                    if len(candidates) == 0:
+                        continue
+                    # Preserve the original accumulation order and strict tile
+                    # bounds so the density field stays numerically equivalent.
+                    mask = torch.as_tensor(candidates, device=device)
                     xx, yy, zz = torch.meshgrid(xs, ys, zs)
                     # sample points [M, 3]
                     pts = torch.cat([xx.reshape(-1, 1), yy.reshape(-1, 1), zz.reshape(-1, 1)], dim=-1).to(device)
-                    # in-tile gaussians mask
-                    vmin, vmax = pts.amin(0), pts.amax(0)
-                    vmin -= block_size * relax_ratio
-                    vmax += block_size * relax_ratio
-                    mask = (xyzs < vmax).all(-1) & (xyzs > vmin).all(-1)
-                    # if hit no gaussian, continue to next block
-                    if not mask.any():
-                        continue
                     mask_xyzs = xyzs[mask] # [L, 3]
                     mask_covs = covs[mask] # [L, 6]
                     mask_opas = opacities[mask].view(1, -1) # [L, 1] --> [1, L]
@@ -861,6 +876,9 @@ class GaussianModel:
         vertices, triangles = clean_mesh(vertices, triangles, remesh=True, remesh_size=0.015)
         if decimate_target > 0 and triangles.shape[0] > decimate_target:
             vertices, triangles = decimate_mesh(vertices, triangles, decimate_target)
+        # Field queries use centered/scaled coordinates; export in the same
+        # world coordinates as the original Gaussian cloud.
+        vertices = vertices / self.mesh_scale + self.mesh_center.detach().cpu().numpy()
         # print(
         #     f"[INFO] marching cubes result: {v.shape} ({v.min().item()}-{v.max().item()}), {f.shape}"
         # )

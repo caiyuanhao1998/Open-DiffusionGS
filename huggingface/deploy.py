@@ -25,7 +25,7 @@ def deploy(wheel):
     object_files += [(f"wheels/{wheel.name}", wheel),
                      ("wheels/RASTERIZER_LICENSE.md", ROOT / "submodules/diff-gaussian-rasterization/LICENSE.md")]
     screenshots = [(f"img/demos/{name}.png", ROOT / f"img/demos/{name}.png")
-                   for name in ("object_demo", "scene_demo")]
+                   for name in ("object_demo", "scene_demo", "online_demos")]
     for repo, files in (
         ("CaiYuanhao/DiffusionGS-Object", object_files + screenshots),
         ("CaiYuanhao/DiffusionGS-Scene", screenshots + [(name, ROOT / "huggingface/scene" / name)

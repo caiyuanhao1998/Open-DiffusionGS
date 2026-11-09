@@ -21,7 +21,7 @@ tags:
 
 # DiffusionGS · Object Generation
 
-Generate a 3D object from one reference image. Upload an image or choose an example, click **Generate object**, then preview and download the rendered views and Gaussian point cloud. **Extract mesh** exports an OBJ from the generated object.
+Generate a 3D object from one reference image. Upload an image or choose an example, click **Generate object**, then preview and download the rendered views and Gaussian point cloud. **Extract mesh** creates a colored mesh preview with GLB and OBJ downloads.
 
 [Scene demo](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Scene) · [GitHub](https://github.com/caiyuanhao1998/Open-DiffusionGS) · [Models](https://huggingface.co/CaiYuanhao/DiffusionGS) · [Paper](https://arxiv.org/abs/2411.14384)
 

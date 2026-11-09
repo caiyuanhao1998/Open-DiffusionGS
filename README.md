@@ -172,7 +172,7 @@ Open `http://127.0.0.1:7860`, upload an indoor or outdoor scene image, select a 
 
 The interactive 3D preview updates when camera settings change. Drag to rotate and scroll to zoom. Camera frusta and arrows show both position and viewing direction, including for pure rotation. Pink marks the input camera, gold marks the three generated keyframes, and green arrows show travel direction. The preview, model conditioning, exported cameras, and rendered video all use the same camera path.
 
-There are 17 trajectory presets. **Spiral forward** is the first and default option; the other presets retain their existing order. It completes one turn while continuously moving forward and keeping the camera facing forward. Translation scale controls the overall travel distance.
+There are 17 trajectory presets. **Spiral forward** is the first and default option; the other presets retain their existing order. It completes **three small turns** while continuously moving forward and keeping the camera facing forward. The spiral radius is 5% of the forward travel distance. Translation scale controls the overall travel distance. Its middle conditioning cameras use different spiral phases to capture lateral motion instead of all falling on the same straight line.
 
 | Camera motion | Presets |
 | --- | --- |
@@ -186,7 +186,7 @@ There are 17 trajectory presets. **Spiral forward** is the first and default opt
 | Combined paths | Crane forward, S-curve, figure eight |
 | Fixed camera | Static |
 
-Adjust translation scale, rotation angle, field of view, seed, diffusion steps, video length, and FPS. Both released scene checkpoints (256px and 512px) are supported and downloaded on first use. Only one model is retained on the GPU when switching resolution. The model generates a scene from four conditioning cameras; extra video frames are rendered from that Gaussian scene, without additional diffusion passes. Small motions generally give better scene coverage than large extrapolations.
+Adjust translation scale, rotation angle, field of view, seed, diffusion steps, video duration, and FPS. Videos default to **5 seconds at 24 FPS (120 frames)**. Changing FPS preserves the selected duration and updates the trajectory preview's frame count. Both released scene checkpoints (256px and 512px) are supported and downloaded on first use. Only one model is retained on the GPU when switching resolution. The model generates a scene from four conditioning cameras; extra video frames are rendered from that Gaussian scene, without additional diffusion passes. Small motions generally give better scene coverage than large extrapolations.
 
 To select a GPU, use local checkpoints, or store outputs outside the repository:
 

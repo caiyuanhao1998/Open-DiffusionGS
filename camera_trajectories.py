@@ -39,7 +39,7 @@ class CameraTrajectory:
 
 def build_trajectory(preset="Spiral forward", translation_scale=1.0,
                      rotation_degrees=15.0, fov_degrees=60.0,
-                     num_frames=60, resolution=256):
+                     num_frames=120, resolution=256):
     """Build a dense path and its four conditioning cameras.
 
     A fixed set of four cameras determines the coordinate normalization, so
@@ -54,24 +54,28 @@ def build_trajectory(preset="Spiral forward", translation_scale=1.0,
         raise ValueError("Translation scale must be in [0, 3] and rotation in [0, 60].")
     if not 20 <= fov_degrees <= 100:
         raise ValueError("Field of view must be between 20 and 100 degrees.")
-    if int(num_frames) != num_frames or not 4 <= num_frames <= 240:
-        raise ValueError("Video length must be an integer between 4 and 240 frames.")
+    if int(num_frames) != num_frames or not 4 <= num_frames <= 600:
+        raise ValueError("Video length must be an integer between 4 and 600 frames.")
     if resolution not in (256, 512):
         raise ValueError("Resolution must be 256 or 512.")
     num_frames = int(num_frames)
-    # Piecewise sampling includes the exact same 4 keyframes at every length.
-    keyframes = np.rint(np.linspace(0, num_frames - 1, 4)).astype(int)
-    t = np.interp(np.arange(num_frames), keyframes, np.linspace(0, 1, 4))
+    # Uniform thirds would sample the same lateral position on every spiral
+    # turn. Offset the two middle anchors to cover both sides of the helix.
+    keyframe_times = (np.array([0, 2 / 9, 7 / 9, 1]) if preset == "Spiral forward"
+                      else np.linspace(0, 1, 4))
+    # Piecewise sampling preserves the exact conditioning poses across lengths.
+    keyframes = np.rint(keyframe_times * (num_frames - 1)).astype(int)
+    t = np.interp(np.arange(num_frames), keyframes, keyframe_times)
     theta = np.deg2rad(rotation_degrees) * t
     poses = np.repeat(np.eye(4)[None], num_frames, axis=0)
     positions = poses[:, :3, 3]
     yaw, pitch = np.zeros(num_frames), np.zeros(num_frames)
     if preset == "Spiral forward":
-        # One helix turn around the forward axis, starting at the input pose.
+        # Three small helix turns around the forward axis, starting at the input pose.
         # Keep the camera looking forward; translation scale controls travel.
-        phase = 2 * np.pi * t
-        positions[:, 0] = 0.25 * (np.cos(phase) - 1)
-        positions[:, 1] = 0.25 * np.sin(phase)
+        phase = 6 * np.pi * t
+        positions[:, 0] = 0.05 * (np.cos(phase) - 1)
+        positions[:, 1] = 0.05 * np.sin(phase)
         positions[:, 2] = t
     elif preset in ("Dolly forward", "Dolly backward"):
         positions[:, 2] = t * (1 if preset == "Dolly forward" else -1)

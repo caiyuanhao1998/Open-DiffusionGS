@@ -2,6 +2,7 @@
 import argparse
 import gc
 import json
+import math
 from pathlib import Path
 import tempfile
 import threading
@@ -26,10 +27,19 @@ SCENE_EXAMPLES = [
 ]
 
 
+def video_frame_count(duration_seconds, fps):
+    if (not math.isfinite(duration_seconds) or int(duration_seconds) != duration_seconds
+            or not 1 <= duration_seconds <= 10):
+        raise ValueError("Video duration must be a whole number between 1 and 10 seconds.")
+    if not math.isfinite(fps) or int(fps) != fps or not 1 <= fps <= 60:
+        raise ValueError("Video FPS must be an integer between 1 and 60.")
+    return int(duration_seconds) * int(fps)
+
+
 def preview_trajectory(preset, translation_scale, rotation_degrees, fov_degrees,
-                       num_frames, resolution):
+                       duration_seconds, resolution, fps=24):
     trajectory = build_trajectory(preset, translation_scale, rotation_degrees,
-                                  fov_degrees, num_frames, int(resolution))
+                                  fov_degrees, video_frame_count(duration_seconds, fps), int(resolution))
     return trajectory_figure(trajectory)
 
 
@@ -44,14 +54,12 @@ class SceneDemo:
         self.lock = threading.Lock()
 
     def generate(self, image, preset, translation_scale, rotation_degrees,
-                 fov_degrees, num_frames, resolution, steps, seed, fps,
+                 fov_degrees, duration_seconds, resolution, steps, seed, fps,
                  progress=gr.Progress()):
         if image is None:
             raise gr.Error("Upload a scene image first.")
         trajectory = build_trajectory(preset, translation_scale, rotation_degrees,
-                                      fov_degrees, num_frames, int(resolution))
-        if int(fps) != fps or not 1 <= fps <= 60:
-            raise gr.Error("Video FPS must be an integer between 1 and 60.")
+                                      fov_degrees, video_frame_count(duration_seconds, fps), int(resolution))
 
         import imageio.v2 as imageio
         import torch
@@ -107,6 +115,7 @@ class SceneDemo:
 
             camera_data = trajectory.to_dict()
             camera_data.update(seed=int(seed), inference_steps=int(steps), fps=int(fps),
+                               duration_seconds=int(duration_seconds),
                                translation_scale=float(translation_scale),
                                rotation_degrees=float(rotation_degrees),
                                fov_degrees=float(fov_degrees))
@@ -123,9 +132,11 @@ class SceneDemo:
                 "status": "passed", "generation_seconds": generation_seconds,
                 "total_seconds": elapsed, "gaussian_count": count,
                 "resolution": int(resolution), "frames": len(cameras),
+                "fps": int(fps), "duration_seconds": int(duration_seconds),
                 "seed": int(seed), "inference_steps": int(steps), "preset": preset,
             }, indent=2))
-            status = (f"**Done.** {int(resolution)}×{int(resolution)} · {len(cameras)} frames · "
+            status = (f"**Done.** {int(resolution)}×{int(resolution)} · {int(duration_seconds)}s · "
+                      f"{len(cameras)} frames at {int(fps)} FPS · "
                       f"{count:,} Gaussians · generation {generation_seconds:.1f}s · total {elapsed:.1f}s")
             return (str(video_path), gallery, str(directory / "scene.ply"),
                     str(camera_path), trajectory_figure(trajectory), status)
@@ -153,18 +164,19 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
                 translation = gr.Slider(0, 2, value=1, step=0.05, label="Translation scale")
                 rotation = gr.Slider(0, 45, value=15, step=1, label="Rotation (degrees)")
                 fov = gr.Slider(30, 90, value=60, step=1, label="Horizontal field of view (degrees)")
-                gr.Markdown("Translation scale controls camera travel; rotation controls pan, tilt, "
+                gr.Markdown("The default spiral makes three small circles while moving forward. "
+                            "Translation scale controls camera travel; rotation controls pan, tilt, "
                             "orbit and curved paths. Small motions usually give better scene coverage.")
                 with gr.Accordion("Generation settings", open=True):
                     resolution = gr.Radio([256, 512], value=256, label="Resolution")
                     steps = gr.Slider(10, 100, value=30, step=1, label="Diffusion steps")
                     seed = gr.Number(value=62, precision=0, minimum=0,
                                      maximum=2**32 - 1, label="Seed")
-                    frames = gr.Slider(12, 120, value=60, step=1, label="Video frames")
+                    duration = gr.Slider(1, 10, value=5, step=1, label="Video duration (seconds)")
                     fps = gr.Slider(8, 30, value=24, step=1, label="Video FPS")
                 generate = gr.Button("Generate scene & video", variant="primary")
             with gr.Column(scale=2):
-                plot = gr.Plot(value=preview_trajectory("Spiral forward", 1, 15, 60, 60, 256),
+                plot = gr.Plot(value=preview_trajectory("Spiral forward", 1, 15, 60, 5, 256, 24),
                                label="Camera trajectory · drag to rotate / scroll to zoom")
                 gr.Markdown("**Pink:** input camera · **Gold:** three generated keyframes · "
                             "**Green arrows:** travel direction. Camera pyramids and arrows show viewing direction. "
@@ -181,14 +193,14 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
         gr.Markdown("Trajectory visualization and camera-control interaction inspired by "
                     "[CameraCtrl](https://github.com/hehao13/CameraCtrl). "
                     "All scene generation uses the released DiffusionGS scene checkpoints.")
-        camera_inputs = [preset, translation, rotation, fov, frames, resolution]
+        camera_inputs = [preset, translation, rotation, fov, duration, resolution, fps]
         preview.click(preview_trajectory, camera_inputs, plot,
                       api_name="preview_trajectory", queue=False)
         for control in camera_inputs:
             control.change(preview_trajectory, camera_inputs, plot, queue=False, api_name=False)
         generation = generate.click(
             service.generate,
-            [image, preset, translation, rotation, fov, frames, resolution, steps, seed, fps],
+            [image, preset, translation, rotation, fov, duration, resolution, steps, seed, fps],
             [video, gallery, ply, camera_file, plot, status],
             api_name="generate_scene", concurrency_limit=1,
         )

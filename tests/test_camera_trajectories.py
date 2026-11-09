@@ -17,24 +17,35 @@ class CameraTrajectoryTests(unittest.TestCase):
             "Crane forward", "S-curve", "Figure eight", "Static",
         ))
 
-    def test_spiral_advances_along_a_circle_with_forward_facing_cameras(self):
-        path = build_trajectory("Spiral forward", num_frames=61)
+    def test_spiral_makes_three_small_turns_with_forward_facing_cameras(self):
+        path = build_trajectory("Spiral forward", num_frames=121)
         relative = np.linalg.inv(path.c2ws[0]) @ path.c2ws
         positions = relative[:, :3, 3]
         self.assertTrue((np.diff(positions[:, 2]) > 0).all())
-        # A full helix turn returns to its lateral start, but ends farther ahead.
+        # Complete helix turns return to the lateral start, but end farther ahead.
         np.testing.assert_allclose(positions[-1, :2], positions[0, :2], atol=1e-6)
-        radius = 0.25 * positions[-1, 2]
+        radius = 0.05 * positions[-1, 2]
         radial_distance = np.linalg.norm(positions[:, :2] + [radius, 0], axis=1)
         np.testing.assert_allclose(radial_distance, radius, atol=1e-6)
         self.assertGreater(np.ptp(positions[:, 1]), radius)
+        angles = np.unwrap(np.arctan2(positions[:, 1], positions[:, 0] + radius))
+        self.assertAlmostEqual((angles[-1] - angles[0]) / (2 * np.pi), 3, places=5)
         np.testing.assert_allclose(relative[:, :3, :3],
-                                   np.tile(np.eye(3), (61, 1, 1)), atol=1e-6)
+                                   np.tile(np.eye(3), (121, 1, 1)), atol=1e-6)
+
+    def test_spiral_conditioning_cameras_cover_lateral_motion(self):
+        path = build_trajectory("Spiral forward")
+        centers = path.c2ws[:, :3, 3]
+        anchors = centers[path.keyframe_indices]
+        forward_travel = centers[-1, 2] - centers[0, 2]
+        # Avoid sampling all three revolutions at the same phase.
+        self.assertGreater(np.ptp(anchors[:, 0]), 0.05 * forward_travel)
+        self.assertGreater(np.ptp(anchors[:, 1]), 0.05 * forward_travel)
 
     def test_all_presets_are_valid_opencv_cameras(self):
         for name in TRAJECTORY_PRESETS:
             with self.subTest(preset=name):
-                path = build_trajectory(name)
+                path = build_trajectory(name, num_frames=60)
                 self.assertEqual(path.c2ws.shape, (60, 4, 4))
                 self.assertTrue(np.isfinite(path.c2ws).all())
                 rotations = path.c2ws[:, :3, :3]
@@ -88,7 +99,7 @@ class CameraTrajectoryTests(unittest.TestCase):
     def test_closed_and_static_paths(self):
         p = build_trajectory("Figure eight").c2ws
         np.testing.assert_allclose(p[0], p[-1], atol=1e-6)
-        p = build_trajectory("Static").c2ws
+        p = build_trajectory("Static", num_frames=60).c2ws
         np.testing.assert_allclose(p, np.tile(np.eye(4), (60, 1, 1)), atol=1e-6)
 
     def test_degenerate_motion_remains_finite(self):

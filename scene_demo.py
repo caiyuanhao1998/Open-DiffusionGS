@@ -20,25 +20,23 @@ SCENE_EXAMPLES = [
     ("Living room", EXAMPLE_IMAGE),
     ("RealEstate10K open kitchen", EXAMPLE_DIRECTORY / "re10k_0bf152ef84195293.png"),
     ("RealEstate10K home office", EXAMPLE_DIRECTORY / "re10k_0f47577ab3441480.png"),
-    ("RealEstate10K living room", EXAMPLE_DIRECTORY / "re10k_2c80f9eb0d3b2bb4.png"),
-    ("RealEstate10K bedroom", EXAMPLE_DIRECTORY / "re10k_3c35b868a8ec3433.png"),
-    ("RealEstate10K kitchen and dining room", EXAMPLE_DIRECTORY / "re10k_4a2d6753676df096.png"),
 ]
 
 
-def video_frame_count(duration_seconds, fps):
+def forward_frame_count(duration_seconds, fps):
+    """Frames to render for the forward half of a symmetric round-trip video."""
     if (not math.isfinite(duration_seconds) or int(duration_seconds) != duration_seconds
-            or not 1 <= duration_seconds <= 10):
-        raise ValueError("Video duration must be a whole number between 1 and 10 seconds.")
+            or not 2 <= duration_seconds <= 20 or int(duration_seconds) % 2):
+        raise ValueError("Round-trip video duration must be an even number between 2 and 20 seconds.")
     if not math.isfinite(fps) or int(fps) != fps or not 1 <= fps <= 60:
         raise ValueError("Video FPS must be an integer between 1 and 60.")
-    return int(duration_seconds) * int(fps)
+    return int(duration_seconds) // 2 * int(fps)
 
 
 def preview_trajectory(preset, translation_scale, rotation_degrees, fov_degrees,
                        duration_seconds, resolution, fps=24):
     trajectory = build_trajectory(preset, translation_scale, rotation_degrees,
-                                  fov_degrees, video_frame_count(duration_seconds, fps), int(resolution))
+                                  fov_degrees, forward_frame_count(duration_seconds, fps), int(resolution))
     return trajectory_figure(trajectory)
 
 
@@ -58,7 +56,7 @@ class SceneDemo:
         if image is None:
             raise gr.Error("Upload a scene image first.")
         trajectory = build_trajectory(preset, translation_scale, rotation_degrees,
-                                      fov_degrees, video_frame_count(duration_seconds, fps), int(resolution))
+                                      fov_degrees, forward_frame_count(duration_seconds, fps), int(resolution))
 
         import imageio.v2 as imageio
         import torch
@@ -93,8 +91,9 @@ class SceneDemo:
             output.input_image.save(directory / "input.png")
             output.gaussians.save_ply(str(directory / "scene.ply"))
             video_path = directory / "scene.mp4"
-            # Render and encode one frame at a time instead of keeping a whole
-            # 512px video in GPU memory. These are the exact previewed cameras.
+            # Render only the forward half. Retain its uint8 frames on the CPU
+            # and append them in reverse order without another rendering pass.
+            forward_frames = []
             with torch.inference_mode(), torch.cuda.device(self.pipeline.device), imageio.get_writer(
                     str(video_path), fps=int(fps), codec="libx264",
                     pixelformat="yuv420p", macro_block_size=1) as writer:
@@ -108,13 +107,27 @@ class SceneDemo:
                     if not torch.isfinite(frame).all():
                         raise RuntimeError("Video rendering produced nonfinite pixels.")
                     frame = frame.clamp(0, 1).mul(255).byte().permute(1, 2, 0).cpu().numpy()
+                    forward_frames.append(frame)
                     writer.append_data(frame)
-                    progress(0.7 + 0.3 * (index + 1) / len(cameras),
-                             desc=f"Rendering video: {index + 1}/{len(cameras)}")
+                    progress(0.7 + 0.2 * (index + 1) / len(cameras),
+                             desc=f"Rendering forward path: {index + 1}/{len(cameras)}")
+                for index, frame in enumerate(reversed(forward_frames)):
+                    writer.append_data(frame)
+                    progress(0.9 + 0.1 * (index + 1) / len(forward_frames),
+                             desc=f"Encoding reverse playback: {index + 1}/{len(forward_frames)}")
 
             camera_data = trajectory.to_dict()
+            playback_indices = list(range(len(cameras))) + list(range(len(cameras) - 1, -1, -1))
+            for key in ("c2ws", "intrinsics"):
+                forward_values = camera_data[key]
+                camera_data[key] = [forward_values[index] for index in playback_indices]
             camera_data.update(seed=int(seed), inference_steps=int(steps), fps=int(fps),
                                duration_seconds=int(duration_seconds),
+                               forward_duration_seconds=int(duration_seconds) // 2,
+                               reverse_duration_seconds=int(duration_seconds) // 2,
+                               rendered_frames=len(forward_frames),
+                               playback="forward_then_reverse",
+                               playback_frame_indices=playback_indices,
                                translation_scale=float(translation_scale),
                                rotation_degrees=float(rotation_degrees),
                                fov_degrees=float(fov_degrees))
@@ -130,12 +143,16 @@ class SceneDemo:
             (directory / "result.json").write_text(json.dumps({
                 "status": "passed", "generation_seconds": generation_seconds,
                 "total_seconds": elapsed, "gaussian_count": count,
-                "resolution": int(resolution), "frames": len(cameras),
+                "resolution": int(resolution), "frames": len(playback_indices),
+                "rendered_frames": len(forward_frames),
                 "fps": int(fps), "duration_seconds": int(duration_seconds),
+                "forward_duration_seconds": int(duration_seconds) // 2,
+                "reverse_duration_seconds": int(duration_seconds) // 2,
                 "seed": int(seed), "inference_steps": int(steps), "preset": preset,
             }, indent=2))
             status = (f"**Done.** {int(resolution)}×{int(resolution)} · {int(duration_seconds)}s · "
-                      f"{len(cameras)} frames at {int(fps)} FPS · "
+                      f"{int(duration_seconds) // 2}s forward + {int(duration_seconds) // 2}s reverse · "
+                      f"{len(playback_indices)} frames at {int(fps)} FPS · "
                       f"{count:,} Gaussians · generation {generation_seconds:.1f}s · total {elapsed:.1f}s")
             return (str(video_path), gallery, str(directory / "scene.ply"),
                     str(camera_path), trajectory_figure(trajectory), status)
@@ -171,15 +188,17 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
                     steps = gr.Slider(10, 100, value=30, step=1, label="Diffusion steps")
                     seed = gr.Number(value=62, precision=0, minimum=0,
                                      maximum=2**32 - 1, label="Seed")
-                    duration = gr.Slider(1, 10, value=5, step=1, label="Video duration (seconds)")
+                    duration = gr.Slider(2, 20, value=10, step=2, label="Video duration (seconds)")
                     fps = gr.Slider(8, 30, value=24, step=1, label="Video FPS")
+                    gr.Markdown("Default: 5 seconds forward + 5 seconds backward. "
+                                "The return trip replays the rendered frames in reverse.")
                 generate = gr.Button("Generate scene & video", variant="primary")
             with gr.Column(scale=2):
-                plot = gr.Plot(value=preview_trajectory("Spiral forward", 1, 15, 60, 5, 256, 24),
+                plot = gr.Plot(value=preview_trajectory("Spiral forward", 1, 15, 60, 10, 256, 24),
                                label="Camera trajectory · drag to rotate / scroll to zoom")
                 gr.Markdown("**Pink:** input camera · **Gold:** three generated keyframes · "
                             "**Green arrows:** travel direction. Camera pyramids and arrows show viewing direction. "
-                            "The preview and video use the same poses.")
+                            "The preview shows the forward path; the return trip retraces it in reverse.")
                 preview = gr.Button("Preview trajectory")
                 video = gr.Video(label="3 · Generated scene video", format="mp4")
                 status = gr.Markdown("Choose an image and a camera path, then generate.")

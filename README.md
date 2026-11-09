@@ -154,11 +154,21 @@ pip install torch==2.5.1 torchvision==0.20.1 xformers==0.0.29.post1 --index-url 
 
 ### 2.1 Object Generation
 
-For object-centric image-to-3D generation model, we provide a single-line script to use the code:
+Launch the object generation **Gradio UI** with:
 ```shell
 python object_demo.py
 ```
-This code will automatically download the model checkpoints and config files from [HuggingFace](https://huggingface.co/CaiYuanhao/DiffusionGS). Or you can manually download them from [this link](https://huggingface.co/CaiYuanhao/DiffusionGS) and set them to a local path.
+Open `http://127.0.0.1:7863`. Upload an object image or select one of seven bundled examples, then click **Generate object**. The UI shows four rendered views and an interactive 3D point cloud, with full Gaussian PLY and PNG downloads. **Extract mesh** reuses the generated Gaussians to create an OBJ and a mesh preview; it runs separately because mesh extraction can take several minutes. Generating another object clears the previous mesh output. The point-cloud preview displays up to 5,000 points; the downloaded PLY contains all points and Gaussian attributes.
+
+The mesh preview uses a separate Y-up asset for the web viewer; the downloaded OBJ retains the model's original coordinates.
+
+For the original command-line inference and automatic mesh export, run:
+
+```sh
+python object_infer.py
+```
+
+Both entrypoints use the model checkpoints and config files from [HuggingFace](https://huggingface.co/CaiYuanhao/DiffusionGS). For the web UI, `--model-dir /path/to/DiffusionGS` selects local weights, `--output-dir /path/to/results` selects the output folder, and `--server-name 0.0.0.0 --server-port 7863` enables access through the server's network address. The directory must contain `obj_ckpt_512.ckpt`, `obj_configs.yaml`, and `camera_template.pt`.
 
 ### 2.2 Scene Generation with Camera Control (Gradio)
 

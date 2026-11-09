@@ -177,6 +177,7 @@ class DiffusionGSPipeline():
         background_color: List[int] = [255, 255, 255],
         foreground_ratio: float = 0.825,
         extract_mesh: bool = True,
+        progress_callback: Optional[Callable[[int, int], None]] = None,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -295,15 +296,17 @@ class DiffusionGSPipeline():
             )
         input_batch["image_noisy"] = sample_noise.to(self.system.dtype)
         with torch.autocast(device_type="cuda", dtype=self.system.dtype): 
-            for out in self.system.diffusion_inference.p_sample_loop_progressive(
+            for step, out in enumerate(self.system.diffusion_inference.p_sample_loop_progressive(
                 self.system.shape_model,
                 sample_noise.shape,
                 input_batch,
                 clip_denoised=False,
                 progress=True,
                 device=self.system.device,
-            ):
+            )):
                 final_out = out
+                if progress_callback is not None:
+                    progress_callback(step + 1, self.system.diffusion_inference.num_timesteps)
         gaussians = final_out['denoiser_output_dict']['pred_gaussians'][0]
         pred_images = final_out['denoiser_output_dict']['render_images'][0]
         # 4. Post-processing
@@ -313,10 +316,10 @@ class DiffusionGSPipeline():
             cam_origins=None,
             nearfar_percent=(0.0001, 1.0),
             )
-        mesh = gaussians.extract_mesh()
         if not return_dict:
             return gaussians
         if extract_mesh:
+            mesh = gaussians.extract_mesh()
             return GSPipelineOutput(gaussians=gaussians, render_images = pred_images, mesh=mesh)
         else:
             return GSPipelineOutput(gaussians=gaussians, render_images = pred_images)

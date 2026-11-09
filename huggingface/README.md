@@ -4,6 +4,8 @@ The [Object Space](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Object) 
 
 The backend uses Python 3.12, PyTorch 2.9.1 with CUDA 12.8, Gradio 5.50.0 and Spaces 0.51.3. Its rasterizer wheel is compiled from this repository's `submodules/diff-gaussian-rasterization` for SM 80, 90 and 120, with forward-compatible PTX. PyTorch SDPA replaces the local environment's xFormers kernels. The object loader omits training losses; all three released denoisers are preloaded for ZeroGPU.
 
+Background-removal and mesh libraries load only when needed, and native thread counts are limited before importing PyTorch so ZeroGPU can fork safely. Object and mesh requests estimate 40 seconds; scene estimates scale with resolution, diffusion steps and video length. Visitors are subject to Hugging Face's per-user GPU quota and anonymous run limits.
+
 Build the wheel in a Python 3.12 environment containing PyTorch 2.9.1, setuptools, wheel and ninja:
 
 ```sh

@@ -1,5 +1,4 @@
 import numpy as np
-import pymeshlab as pml
 
 
 def poisson_mesh_reconstruction(points, normals=None):
@@ -57,6 +56,7 @@ def decimate_mesh(
         solver.simplify_mesh(target_count=target, preserve_border=False, verbose=False)
         verts, faces, normals = solver.getMesh()
     else:
+        import pymeshlab as pml
         m = pml.Mesh(verts, faces)
         ms = pml.MeshSet()
         ms.add_mesh(m, "mesh")  # will copy!
@@ -95,6 +95,7 @@ def clean_mesh(
     remesh=True,
     remesh_size=0.01,
 ):
+    import pymeshlab as pml
     # verts: [N, 3]
     # faces: [N, 3]
 

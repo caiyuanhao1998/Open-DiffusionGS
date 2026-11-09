@@ -3,6 +3,13 @@ import os
 from pathlib import Path
 from types import SimpleNamespace
 
+# rembg imports Numba. Its default TBB pool cannot safely fork from a
+# Gradio worker thread when ZeroGPU starts the GPU process.
+os.environ.setdefault("NUMBA_THREADING_LAYER", "workqueue")
+os.environ.setdefault("NUMBA_NUM_THREADS", "2")
+for variable in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
+    os.environ[variable] = "1"
+
 # ZeroGPU must install its CUDA emulation before torch is imported.
 import spaces
 import torch
@@ -49,7 +56,7 @@ def load_object_pipeline(model_dir):
     return DiffusionGSPipeline("cuda:0", config, system)
 
 
-torch.set_num_threads(2)
+torch.set_num_threads(1)
 model_dir = Path(snapshot_download(
     MODEL_REPO, revision=MODEL_REVISION,
     allow_patterns=["obj_ckpt_512.ckpt", "obj_configs.yaml", "camera_template.pt",
@@ -69,19 +76,29 @@ _extract_mesh = object_service.extract_mesh
 _generate_scene = scene_service.generate
 
 
-@spaces.GPU(duration=120)
+@spaces.GPU(duration=40)
 def generate_object(image, seed, foreground_ratio, force_remove_background):
+    print("Starting object generation on ZeroGPU", flush=True)
     return _generate_object(image, seed, foreground_ratio, force_remove_background)
 
 
-@spaces.GPU(duration=180)
+@spaces.GPU(duration=40)
 def extract_mesh(result_directory):
+    print("Starting mesh extraction on ZeroGPU", flush=True)
     return _extract_mesh(result_directory)
 
 
-@spaces.GPU(duration=120)
+def scene_gpu_duration(image, preset, translation_scale, rotation_degrees, fov_degrees,
+                       duration_seconds, resolution, steps, seed, fps):
+    return (20 + (20 if int(resolution) == 512 else 0)
+            + max(0, int(steps) - 30) // 2
+            + max(0, int(duration_seconds) * int(fps) // 2 - 120) // 10)
+
+
+@spaces.GPU(duration=scene_gpu_duration)
 def generate_scene(image, preset, translation_scale, rotation_degrees, fov_degrees,
                    duration_seconds, resolution, steps, seed, fps):
+    print("Starting scene generation on ZeroGPU", flush=True)
     scene_service.pipeline = scene_pipelines[int(resolution)]
     return _generate_scene(image, preset, translation_scale, rotation_degrees, fov_degrees,
                            duration_seconds, resolution, steps, seed, fps)
@@ -91,9 +108,10 @@ object_service.generate = generate_object
 object_service.extract_mesh = extract_mesh
 scene_service.generate = generate_scene
 demo = build_object_demo(service=object_service)
+scene_demo = build_scene_demo(service=scene_service)
 with demo.route("Scene Generation", "/scene"):
-    build_scene_demo(service=scene_service).render()
+    scene_demo.render()
 
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("GRADIO_SERVER_PORT", "7860")),
-                max_file_size="20mb", allowed_paths=[str(OUTPUT_ROOT)])
+                max_file_size="20mb", allowed_paths=[str(OUTPUT_ROOT)], ssr_mode=False)

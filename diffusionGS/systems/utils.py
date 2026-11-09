@@ -13,7 +13,6 @@ from torchvision import transforms
 from diffusionGS.utils.structure import Mesh
 import inspect
 from PIL import Image, ImageOps
-import rembg
 import cv2
 def _warmup_beta(beta_start, beta_end, num_diffusion_timesteps, warmup_frac):
     betas = beta_end * np.ones(num_diffusion_timesteps, dtype=np.float64)
@@ -573,6 +572,7 @@ def preprocess(image:Image.Image,session) -> Image.Image:
         rgba = image.copy()
     else:
         # https://github.com/pymatting/pymatting/issues/19
+        import rembg
         rgba = rembg.remove(image, alpha_matting=True, session=session)
 
     alpha = rgba.getchannel('A')

@@ -3,7 +3,6 @@ import warnings
 from typing import Callable, List, Optional, Union, Dict, Any
 import PIL.Image
 import trimesh
-import rembg
 import torch
 import numpy as np
 from huggingface_hub import hf_hub_download
@@ -122,6 +121,7 @@ class DiffusionGSPipeline():
                 do_remove = False
             do_remove = do_remove or force
             if do_remove:
+                import rembg
                 image = rembg.remove(image)
 
             # calculate the min bbox of the image

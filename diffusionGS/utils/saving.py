@@ -17,7 +17,6 @@ from pytorch_lightning.loggers import WandbLogger
 import torchvision
 from diffusionGS.models.geometry.utils import Mesh
 from diffusionGS.utils.typing import *
-import open3d as o3d
 from einops import rearrange
 from diffusionGS.models.gsrenderer.gs_core import imageseq2video, render_turntable, render_generic
 from diffusionGS.models.gsrenderer.cam_utils import get_interpolated_poses_many
@@ -521,6 +520,7 @@ class SaverMixin:
         return save_path 
     
     def save_vertices_as_ply_open3d(self, vertices, normal, filepath):
+        import open3d as o3d
         # points = [[v[0], v[1], v[2]] for v in vertices]
         points  = vertices
         point_cloud = o3d.geometry.PointCloud()

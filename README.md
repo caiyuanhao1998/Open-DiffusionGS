@@ -135,10 +135,18 @@ conda activate diffusiongs
 # conda install -c "nvidia/label/cuda-12.1.1" cudatoolkit
 # conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia
 pip install torch==2.5.1 torchvision==0.20.1
-pip install -r requirements.txt
+pip install -r requirement.txt
 pip install -e submodules/diff-gaussian-rasterization
 pip install -e submodules/simple-knn
 ```
+
+The CUDA extensions require a local CUDA toolkit compatible with your PyTorch CUDA build and a supported C++ compiler. This setup was verified with Python 3.11, PyTorch 2.5.1+cu121, torchvision 0.20.1+cu121, xformers 0.0.29.post1, CUDA 12.1, and GCC/G++ 12 on an RTX A5000. To use that PyTorch build, replace the PyTorch installation command above with:
+
+```sh
+pip install torch==2.5.1 torchvision==0.20.1 xformers==0.0.29.post1 --index-url https://download.pytorch.org/whl/cu121
+```
+
+`requirement.txt` pins `kiui==0.2.19`: version 0.3.5 fails to import `kiui.op` with `NameError: name 'Union' is not defined`. It also includes the runtime dependencies `typeguard`, `kornia`, `rich`, and `onnxruntime` used by the project and background removal.
 
 &nbsp;
 

@@ -20,6 +20,7 @@ if os.name == 'nt':
 
 setup(
     name="simple_knn",
+    packages=["simple_knn"],
     ext_modules=[
         CUDAExtension(
             name="simple_knn._C",

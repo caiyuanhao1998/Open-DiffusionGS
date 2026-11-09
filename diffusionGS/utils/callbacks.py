@@ -29,13 +29,13 @@ class EarlyEnvironmentSetter(Callback):
     
     def setup(self, trainer, pl_module, stage):
         if not self.rank_set: 
-            world_size = trainer.num_devices
+            world_size = trainer.world_size
             local_rank = trainer.strategy.local_rank
 
             os.environ['WORLD_SIZE'] = str(world_size)
-            os.environ['LOCAL_WORLD_SIZE'] = str(world_size)
+            os.environ['LOCAL_WORLD_SIZE'] = str(trainer.num_devices)
             os.environ['LOCAL_RANK'] = str(local_rank)
-            os.environ['RANK'] = str(local_rank)
+            os.environ['RANK'] = str(trainer.global_rank)
 
             self.rank_set = True
 

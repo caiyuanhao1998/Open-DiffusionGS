@@ -131,24 +131,33 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 &nbsp;
 
 ## 1. Create Environment
+
+Clone the repository and activate a new environment:
+
 ```sh
+git clone https://github.com/caiyuanhao1998/Open-DiffusionGS.git
+cd Open-DiffusionGS
 conda create -n diffusiongs python=3.11 -y
 conda activate diffusiongs
-# conda install -c "nvidia/label/cuda-12.1.1" cudatoolkit
-# conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia
-pip install torch==2.5.1 torchvision==0.20.1
-pip install -r requirement.txt
-pip install -e submodules/diff-gaussian-rasterization
-pip install -e submodules/simple-knn
 ```
 
-The CUDA extensions require a local CUDA toolkit compatible with your PyTorch CUDA build and a supported C++ compiler. This setup was verified with Python 3.11, PyTorch 2.5.1+cu121, torchvision 0.20.1+cu121, xformers 0.0.29.post1, CUDA 12.1, and GCC/G++ 12 on an RTX A5000. To use that PyTorch build, replace the PyTorch installation command above with:
+Use a local CUDA 12.1 toolkit and GCC/G++ 12. Adjust these paths to your installation:
 
 ```sh
-pip install torch==2.5.1 torchvision==0.20.1 xformers==0.0.29.post1 --index-url https://download.pytorch.org/whl/cu121
+export CUDA_HOME=/usr/local/cuda-12.1
+export PATH="$CUDA_HOME/bin:$PATH"
+export CC=gcc-12
+export CXX=g++-12
+python -m pip install torch==2.5.1 torchvision==0.20.1 xformers==0.0.29.post1 --index-url https://download.pytorch.org/whl/cu121
+pip install -r requirement.txt
+pip install --no-build-isolation -e submodules/diff-gaussian-rasterization
+pip install --no-build-isolation -e submodules/simple-knn
+pip check
 ```
 
-`requirement.txt` pins `kiui==0.2.19`: version 0.3.5 fails to import `kiui.op` with `NameError: name 'Union' is not defined`. It also includes the runtime dependencies `typeguard`, `kornia`, `rich`, and `onnxruntime` used by the project and background removal.
+This setup targets Linux with an NVIDIA GPU. A matching CUDA toolkit is needed to compile the extensions; installing the PyTorch wheel alone does not provide `nvcc`. Dependency pins include the Gradio/Pydantic, Lightning/setuptools and datasets/PyArrow compatibility constraints.
+
+See the [fresh-install validation report](docs/README_VALIDATION.md) for tested commands, fixes and verification limits.
 
 &nbsp;
 
@@ -200,10 +209,11 @@ python scene_infer.py
 
 ### 3.1 Scene-level Dataset
 
-Download the RealEstate10K dataset from [this link](http://schadenfreude.csail.mit.edu:8000/), which is provided by [pixelSplat](https://github.com/dcharatan/pixelsplat), and `unzip` the zip file and put the data in `YOUR_RAW_DATAPATH`.
+Download the RealEstate10K **`.torch` chunks** following [pixelSplat's dataset instructions](https://github.com/dcharatan/pixelsplat#acquiring-datasets). Place them under `YOUR_RAW_DATAPATH/train/` and `YOUR_RAW_DATAPATH/test/`. This converter expects encoded images and cameras in those chunks; the original RealEstate10K camera annotation files alone are insufficient.
 Run the following command to preprocess the data into our format.
 ```bash
-python process_data.py --base_path YOUR_RAW_DATAPATH --output_dir YOUR_PROCESSED_DATAPATH --mode ['train' or 'test']
+python process_data.py --base_path YOUR_RAW_DATAPATH --output_dir YOUR_PROCESSED_DATAPATH --mode train
+python process_data.py --base_path YOUR_RAW_DATAPATH --output_dir YOUR_PROCESSED_DATAPATH --mode test
 ```
 
 ### 3.2 Object-level Dataset
@@ -243,20 +253,24 @@ The scene-level evaluation is conducted on the [RealEstate10K](http://schadenfre
 | [Open-DiffusionGS(res256)](https://huggingface.co/CaiYuanhao/DiffusionGS/blob/main/scene_ckpt_256.ckpt) | 21.26 | 0.672 | 0.257 |
 | [Open-DiffusionGS(res512)](https://huggingface.co/CaiYuanhao/DiffusionGS/blob/main/scene_ckpt_512.ckpt) | - | - | - |
 
+These are previously reported release scores. The corrected evaluation below excludes the input image and renders every specified target view; the full benchmark has not been rerun with this protocol.
+
 We use `./extra_files/evaluation_index_re10k.json` to specify the input and target view indice. This json file is originally from [pixelSplat](https://github.com/dcharatan/pixelsplat). 
 
 We only provide evaluation codes for scene as
 ```bash
-bash script/eval.sh
+bash scripts/eval.sh
 ```
 
-This code will evaluate all testsets, and generate the `.pt` for you to caculate metrics, if you want to store the scene videos and gaussians, plese turn `system.save_intermediate_video` to `True` in the config file (`diffusiongs/configs/diffusionGS_scene_eval.yaml`).
+Set `data.local_eval_dir` to the processed test `full_list.txt` and `system.shape_model.pretrained_model_name_or_path` to the downloaded scene checkpoint in `diffusionGS/configs/diffusionGS_scene_eval.yaml`. The script saves `.pt` image pairs for metrics. Set `system.save_intermediate_video` to `True` to also save videos and Gaussians. For 512px evaluation, use `bash scripts/eval_512.sh` and the corresponding config.
 
-After run this codes, the result will specified in `{exp_root_dir}/{name}/{tags}` in the config file.
+The supplied configs limit evaluation to 16 scenes; set `data.eval_subset=-1` to evaluate the full indexed test set. Evaluation uses one scene per GPU batch to support different target-view counts.
+
+Results are saved under `{exp_root_dir}/{name}/{trial_name}/save/it0`. For a single-GPU run, `trial_name` includes a timestamp by default; set `use_timestamp=false` for a fixed directory name.
 
 For provided config, the result will be form like
 ```
-outputs/diffusion_gs_scene_re10k_256_stage1_eval/diffusion-gs-model-scene+lr0.0001/save/it0
+outputs/diffusion_gs_scene_re10k_256_stage1_eval_test/diffusion-gs-model-scene+lr0.0001@YYYYMMDD-HHMMSS/save/it0
 ├── 0a3b5fb184936a83.pt
 ├── 0a4cf8d9b81b4c6e.pt
 ├── ...
@@ -265,9 +279,9 @@ each `.pt` store the rendered images and gt images for you to calculate metrics.
 
 If you want to calculate metrics, please run:
 ```bash
-bash cal_metrics.sh
+bash scripts/cal_metrics.sh --path YOUR_EVALUATION_RESULT_DIR --chunk 64
 ```
-after you replace the `exp_root_dir` in `cal_metrics.sh`, you can run this script to calculate metrics.
+Use the evaluation output directory containing the `.pt` files as `--path`. Metrics cover all specified target views and exclude the input image.
 
 &nbsp;
 
@@ -275,11 +289,14 @@ after you replace the `exp_root_dir` in `cal_metrics.sh`, you can run this scrip
 ## 5. Training
 We provide 4 stages training scripts for you to train your own models:
 ```bash
-bash scripts/train_scene_stage1.py # train object model (res256)
-bash scripts/train_scene_stage2.py # train object model (res512)
-bash scripts/train_obj_stage1.py  # train scene model (res256)
-bash scripts/train_obj_stage2.py  # train scene model (res512)
+bash scripts/train_obj_stage1.sh   # object model (res256)
+bash scripts/train_obj_stage2.sh   # object model (res512)
+bash scripts/train_scene_stage1.sh # scene model (res256)
+bash scripts/train_scene_stage2.sh # scene model (res512)
 ```
+Launch scripts use the active environment and default to one GPU. Set `CUDA_VISIBLE_DEVICES` to a comma-separated device list for multi-GPU training. Config overrides can be appended to the commands above. Adjust `data.batch_size` for available GPU memory; the released training configs use large batches.
+
+For host-specific NCCL initialization issues, see the [multi-GPU validation notes](docs/README_VALIDATION.md#multi-gpu-check).
 Before training, you need to specified your data path in the config files by replacing `local_dir` to your processed `RealEstate10K` (For scene). Or `image_dir` and `local_dir` to the `gobjaverse` file and the prepared json folder (For object).
 
 Note: when you train the second stage model, remember to replace   `shape_model.pretrained_model_name_or_path: ` to the trained first stage checkpoint.

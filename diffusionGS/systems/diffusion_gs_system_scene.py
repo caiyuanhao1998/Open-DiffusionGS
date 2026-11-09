@@ -18,6 +18,7 @@ from einops import repeat, rearrange
 from diffusionGS.utils.misc import get_rank
 from diffusionGS.systems.base import BaseSystem
 from diffusionGS.models.diffusion import create_diffusion
+from diffusionGS.models.gsrenderer.gs_core import render_opencv_cam
 from diffusionGS.utils.typing import *
 from diffusionGS.utils.losses import LossComputer,MetricComputer
 from diffusionGS.systems.utils import *
@@ -220,20 +221,28 @@ class PointDiffusionSystem(BaseSystem):
 
         if self.cfg.save_result_for_eval:
             for i in range(len(batch['uid'])):
-                # breakpoint()
+                # Score every specified target view, excluding the conditioning image.
+                targets = batch['rgbs'][i, 1:]
+                cameras = batch['c2ws'][i, 1:]
+                intrinsics = batch['fxfycxcys'][i, 1:]
+                gaussians = final_out['denoiser_output_dict']['pred_gaussians'][i]
+                # The native rasterizer requires float32 camera matrices, even
+                # while Lightning runs the denoiser with mixed precision.
+                with torch.autocast(device_type="cuda", enabled=False):
+                    predictions = torch.stack([
+                        render_opencv_cam(gaussians, targets.shape[-2], targets.shape[-1],
+                                          camera.float(), intrinsic.float())['render']
+                        for camera, intrinsic in zip(cameras, intrinsics)
+                    ])
                 result_pkg = {
-                    'render_images': final_out['denoiser_output_dict']['render_images'][i].detach().cpu(),
-                    'image': batch['rgbs_input'][i].detach().cpu(),
+                    'render_images': predictions.detach().cpu(),
+                    'image': targets.detach().cpu(),
+                    'target_indices': batch['image_indices'][i, 1:].detach().cpu(),
                 }
                 self.save_torch(f"it{self.true_global_step}/{batch['uid'][i]}.pt", result_pkg)
-        psnr = 0.0
-        ssim = 0.0
-        lpips = 0.0
-        self.log("val/psnr", psnr, sync_dist=True)
-        self.log("val/ssim", ssim, sync_dist=True)
-        self.log("val/lpips", lpips, sync_dist=True)
         torch.cuda.empty_cache()
-        return {"val/psnr": psnr, "val/ssim": ssim, "val/lpips": lpips}
+        # Metrics are computed from the saved target views by eval_scene_result.py.
+        return {}
 
     def on_validation_epoch_end(self):
         pass

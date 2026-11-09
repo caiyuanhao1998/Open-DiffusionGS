@@ -39,8 +39,8 @@ class SplitData(nn.Module):
         for key, value in data_batch.items():
             try:
                 input[key] = value[:, : self.config.training.num_input_views, ...]      # 取前 num_input_views 个视图, 在应用中 num_input_views = 4
-            except:
-                breakpoint()
+            except Exception as exc:
+                raise ValueError(f"Batch field {key!r} must have batch and view dimensions") from exc
             if self.config.training.num_target_views >= value.size(1):  # 如果 target 的数量大于等于输入的数量, 4 < 8, 这一步不执行
                 target[key] = value
             else:

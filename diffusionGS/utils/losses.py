@@ -421,7 +421,7 @@ class MetricComputer(nn.Module):
         lpips_loss_per_element = self.lpips_loss_module(
             F.interpolate(predicted, size=[256,256], mode='bilinear') * 2.0 - 1.0, F.interpolate(ground_truth, size=[256,256], mode='bilinear') * 2.0 - 1.0
         )
-        return lpips_loss_per_element.squeeze()
+        return lpips_loss_per_element.reshape(-1)
 
 
 

@@ -14,7 +14,7 @@ data:
   sel_views_train: 4
   training_res: [256, 256]
   batch_size: 16
-  eval_batch_size: 16
+  eval_batch_size: 1
   num_workers: 4
   num_workers_val: 4
 

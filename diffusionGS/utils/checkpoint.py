@@ -6,6 +6,18 @@ Adapted from: https://github.com/openai/guided-diffusion/blob/22e0df8183507e13a7
 import torch
 from diffusionGS.utils.typing import *
 
+
+def load_denoiser_checkpoint(path):
+    """Load denoiser weights from raw, Lightning, or legacy training checkpoints."""
+    checkpoint = torch.load(path, map_location="cpu", weights_only=False)
+    state = checkpoint.get("state_dict", checkpoint.get("model", checkpoint))
+    state = {key.removeprefix("module."): value for key, value in state.items()}
+    for prefix in ("shape_model.", "denoiser."):
+        if any(key.startswith(prefix) for key in state):
+            return {key.removeprefix(prefix): value for key, value in state.items()
+                    if key.startswith(prefix) and not key.startswith(prefix + "loss_computer.")}
+    return state
+
 def checkpoint(
     func: Callable[..., Union[torch.Tensor, Sequence[torch.Tensor]]],
     inputs: Sequence[torch.Tensor],

@@ -9,7 +9,7 @@ from easydict import EasyDict as edict
 import diffusionGS
 from diffusionGS.models.transformers.utils_transformer import DiTBlock,_init_weights
 from diffusionGS.models.gsrenderer.renderer import Renderer,SceneRenderer
-from diffusionGS.utils.checkpoint import checkpoint
+from diffusionGS.utils.checkpoint import checkpoint, load_denoiser_checkpoint
 from diffusionGS.utils.base import BaseModule
 from diffusionGS.utils.typing import *
 from diffusionGS.utils.ops import generate_dense_grid_points
@@ -264,30 +264,9 @@ class DGSDenoiser(BaseModule):
         # renderer
         if self.cfg.pretrained_model_name_or_path != "":
             print(f"Loading pretrained shape model from {self.cfg.pretrained_model_name_or_path}")
-            pretrained_ckpt = torch.load(self.cfg.pretrained_model_name_or_path, map_location="cpu")
-            if 'model' in pretrained_ckpt.keys():
-                pret_weights = pretrained_ckpt['model']
-                _pretrained_ckpt = {}
-                # breakpoint()
-                for k, v in pret_weights.items():
-                    if k.startswith('denoiser.') and not k.startswith('denoiser.loss_computer'):
-                        _pretrained_ckpt[k.replace('denoiser.', '')] = v
-                        #
-                pretrained_ckpt = _pretrained_ckpt
-                
-            if 'state_dict' in pretrained_ckpt:
-                _pretrained_ckpt = {}
-                for k, v in pretrained_ckpt['state_dict'].items():
-                    if k.startswith('shape_model.'):
-                        _pretrained_ckpt[k.replace('shape_model.', '')] = v
-                pretrained_ckpt = _pretrained_ckpt
-            else:
-                _pretrained_ckpt = {}
-                for k, v in pretrained_ckpt.items():
-                    if k.startswith('shape_model.'):
-                        _pretrained_ckpt[k.replace('shape_model.', '')] = v
-                pretrained_ckpt = _pretrained_ckpt
-            self.load_state_dict(pretrained_ckpt, strict=True)
+            self.load_state_dict(
+                load_denoiser_checkpoint(self.cfg.pretrained_model_name_or_path), strict=True,
+            )
 
     def forward(self, input_batch, timesteps):
         guassians_parameters,_ = self.image_to_gaussians(input_batch['image'], input_batch['ray_o'], input_batch['ray_d'], timesteps)

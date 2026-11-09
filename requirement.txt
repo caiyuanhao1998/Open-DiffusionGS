@@ -1,4 +1,8 @@
 datasets==2.19.0
+pyarrow==16.1.0
+setuptools==80.9.0
+ninja
+wheel
 diffusers==0.31.0
 einops==0.8.0
 huggingface-hub==0.30.2
@@ -11,7 +15,7 @@ lightning-utilities==0.11.2
 matplotlib==3.8.4
 numpy==1.26.4
 omegaconf==2.3.0
-opencv-python==4.9.0.80
+opencv-python-headless==4.9.0.80
 pandas==2.2.2
 pillow==10.3.0
 plyfile==1.0.3

@@ -106,6 +106,8 @@ class BaseDataset(Dataset):
         self.cfg: BaseDataModuleConfig = cfg
         self.split = split
         self.uids = json.load(open(f'{cfg.local_dir}/{split}.json'))
+        if not self.uids:
+            raise ValueError(f"No {split} objects listed in {cfg.local_dir}")
         self.train_idxs = get_remaining_indices(self.cfg.gen_idxs,self.cfg.all_idxs)
         # Default camera intrinsics [for Gobjaverse]
         self.fxfycxcy = torch.tensor([self.cfg.default_fxfy, self.cfg.default_fxfy, 0.5, 0.5], dtype=torch.float32)
@@ -166,7 +168,8 @@ class BaseDataset(Dataset):
         train_idxs = get_remaining_indices(sel_gen_idxs,self.cfg.all_idxs)
         sel_train_idxs = random.sample(train_idxs, k=self.cfg.sel_views) # hard code for 40 views [GOBJAVERSE]
         all_sel_idxs = sel_gen_idxs + sel_train_idxs
-        image_file_dirs = [self.cfg.image_dir + f"{uid}/campos_512_v4/{str(sel_idx).zfill(5)}" for sel_idx in all_sel_idxs]
+        image_file_dirs = [os.path.join(self.cfg.image_dir, str(uid), "campos_512_v4", f"{sel_idx:05d}")
+                           for sel_idx in all_sel_idxs]
         # background color
         background_color = torch.as_tensor(self.cfg.background_color)
         rgbs = []
@@ -246,8 +249,7 @@ class BaseDataset(Dataset):
         try:
             return self._get_data(index)
         except Exception as e:
-            print(f"Error in {self.uids[index]}: {e}")
-            return self.__getitem__(np.random.randint(len(self)))
+            raise RuntimeError(f"Could not load object {self.uids[index]}: {e}") from e
 
     def collate(self, batch):
         from torch.utils.data._utils.collate import default_collate_fn_map

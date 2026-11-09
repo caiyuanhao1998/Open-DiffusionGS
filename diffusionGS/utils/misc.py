@@ -16,8 +16,7 @@ def parse_version(ver: str):
 
 
 def get_rank():
-    # SLURM_PROCID can be set even if SLURM is not managing the multiprocessing,
-    # therefore LOCAL_RANK needs to be checked first
+    # Prefer torchrun's global rank; local device selection is handled separately.
     rank_keys = ("RANK", "LOCAL_RANK", "SLURM_PROCID", "JSM_NAMESPACE_RANK")
     for key in rank_keys:
         rank = os.environ.get(key)
@@ -34,7 +33,8 @@ def get_world_size():
     return 1
 
 def get_device():
-    return torch.device(f"cuda:{get_rank()}")
+    local_rank = int(os.environ.get("LOCAL_RANK", get_rank()))
+    return torch.device(f"cuda:{local_rank}")
 
 
 def load_module_weights(

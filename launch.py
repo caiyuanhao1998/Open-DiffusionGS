@@ -283,7 +283,6 @@ def main(args, extras) -> None:
         system.set_resume_status(ckpt["epoch"], ckpt["global_step"])
     if args.train:
         trainer.fit(system, datamodule=dm, ckpt_path=cfg.resume)
-        trainer.test(system, datamodule=dm)
         if args.gradio:
             # also export assets if in gradio mode
             trainer.predict(system, datamodule=dm)

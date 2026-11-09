@@ -1,6 +1,3 @@
-export OPENCV_IO_ENABLE_OPENEXR=1
-source activate diffusiongs
-
-TORCHELASTIC_TIMEOUT=18000 torchrun  --standalone --nnodes=1 --nproc-per-node=8 \
-    launch.py --validate --use_ema --gpu 0,1,2,3,4,5,6,7 \
-    --config diffusionGS/configs/diffusionGS_scene_eval.yaml 
+#!/usr/bin/env bash
+source "$(dirname -- "${BASH_SOURCE[0]}")/launch_common.sh"
+launch_diffusiongs --validate diffusionGS/configs/diffusionGS_scene_eval.yaml "$@"

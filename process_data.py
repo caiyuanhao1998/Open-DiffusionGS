@@ -114,7 +114,7 @@ def process_torch_file(file_path, output_dir):
                     
                 except Exception as e:
                     logging.error(f"Error processing image {img_idx} in {file_path}: {str(e)}")
-                    continue
+                    raise
             
             cur_info_dict['frames'] = frames
             
@@ -145,6 +145,10 @@ def process_directory(input_dir, output_dir, num_processes=None, chunk_size=1):
 
     total_files = len(torch_files)
     logging.info(f"Found {total_files} files to process in {input_dir}")
+    if total_files == 0:
+        raise ValueError(f"No .torch files found in {input_dir}")
+    if chunk_size < 1 or (num_processes is not None and num_processes < 1):
+        raise ValueError("num_processes and chunk_size must be positive")
     
     # Set up multiprocessing
     if num_processes is None:
@@ -174,6 +178,7 @@ def process_directory(input_dir, output_dir, num_processes=None, chunk_size=1):
         logging.warning(f"Failed to process {len(failed)} files:")
         for _, path in failed:
             logging.warning(f"  - {path}")
+        raise RuntimeError(f"Failed to preprocess {len(failed)}/{total_files} files")
 
 def generate_full_list(base_path, output_dir):
     # find all .json files in the base_path and generate a full list saving their absolute paths and store it in a txt file in the output_dir

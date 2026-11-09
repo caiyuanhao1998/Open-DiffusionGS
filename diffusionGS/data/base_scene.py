@@ -71,6 +71,8 @@ class BaseDataset(Dataset):
                         all_scene_paths = all_scene_paths[:self.cfg.eval_subset]
             self.uids = all_scene_paths
         # load anything
+        if not self.uids:
+            raise ValueError(f"No {split} scenes found; check the scene list and evaluation index")
         print(f"Loaded {len(self.uids)} {split} uids")  
         # breakpoint()
     def __len__(self):
@@ -149,7 +151,7 @@ class BaseDataset(Dataset):
 
         # Rescale the whole scene to a fixed scale
         scene_scale = torch.max(torch.abs(in_c2ws[:, :3, 3]))
-        scene_scale = scene_scale_factor * scene_scale
+        scene_scale = (scene_scale_factor * scene_scale).clamp_min(1e-8)
 
         in_c2ws[:, :3, 3] /= scene_scale
 
@@ -205,8 +207,7 @@ class BaseDataset(Dataset):
         try:
             return self._get_data(index)
         except Exception as e:
-            print(f"Error in {self.uids[index]}: {e}")
-            return self.__getitem__(np.random.randint(len(self)))
+            raise RuntimeError(f"Could not load scene {self.uids[index]}: {e}") from e
 
     def collate(self, batch):
         from torch.utils.data._utils.collate import default_collate_fn_map

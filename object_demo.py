@@ -146,8 +146,8 @@ class ObjectDemo:
             return str(preview_path), str(destination), "**Mesh ready.** Preview or download the OBJ below."
 
 
-def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_demo", device="cuda:0"):
-    service = ObjectDemo(model_dir, output_dir, device)
+def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_demo", device="cuda:0", *, service=None):
+    service = service if service is not None else ObjectDemo(model_dir, output_dir, device)
     with gr.Blocks(title="DiffusionGS · Object Generation", theme=gr.themes.Soft()) as demo:
         result_directory = gr.State()
         gr.Markdown("# DiffusionGS · Object Generation\n"

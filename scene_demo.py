@@ -159,8 +159,8 @@ class SceneDemo:
 
 
 def build_demo(model_dir="CaiYuanhao/DiffusionGS", cache_dir=None,
-               output_dir="outputs/scene_demo", device="cuda:0"):
-    service = SceneDemo(model_dir, cache_dir, output_dir, device)
+               output_dir="outputs/scene_demo", device="cuda:0", *, service=None):
+    service = service if service is not None else SceneDemo(model_dir, cache_dir, output_dir, device)
     with gr.Blocks(title="DiffusionGS · Scene Generation", theme=gr.themes.Soft()) as demo:
         gr.Markdown("# DiffusionGS · Scene Generation\n"
                     "Turn a scene image into a 3D Gaussian scene and a camera-controlled video.")

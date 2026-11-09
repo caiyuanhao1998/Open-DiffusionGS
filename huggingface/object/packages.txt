@@ -1,0 +1,5 @@
+libgl1
+libglib2.0-0
+libegl1
+libopengl0
+libgomp1

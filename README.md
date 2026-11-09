@@ -6,6 +6,8 @@
 [![Project](https://img.shields.io/badge/Project-page-2EA44F)](https://caiyuanhao1998.github.io/project/DiffusionGS/)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Dataset-yellow)](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-yellow)](https://huggingface.co/CaiYuanhao/DiffusionGS)
+[![Object Demo](https://img.shields.io/badge/🤗%20Online%20Demo-Object-yellow)](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Object)
+[![Scene Demo](https://img.shields.io/badge/🤗%20Online%20Demo-Scene-yellow)](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Scene)
 [![MrNeRF](https://img.shields.io/badge/media-MrNeRF-yellow)](https://x.com/janusch_patas/status/1859867424859856997)
 
 <h3>Baking Gaussian Splatting into Diffusion Denoiser for Fast and <br> Scalable Single-stage Image-to-3D Generation and Reconstruction</h3> 
@@ -44,6 +46,7 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 
 
 ### News
+- **2026.11.09 :** Try our [Object Generation](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Object) and [Scene Generation](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Scene) online demos on Hugging Face Spaces. 🤗
 - **2025.11.20 :** Added mesh exportation code. Feel free to have a try. 💫
 - **2025.10.23 :** Add mesh exportion example. Code of this part will also will be released. 🤗
 - **2025.10.17 :** Add visual comparisons between Hunyuan-v2.5 and our open-source model.  Our method is over **7.5x** Hunyuan-v2.5 model.  🚀
@@ -152,10 +155,9 @@ pip install torch==2.5.1 torchvision==0.20.1 xformers==0.0.29.post1 --index-url 
 
 ## 2. Quick Demo
 
-<p align="center">
-  <img src="img/demos/object_demo.png" height="420" alt="Object generation Gradio demo">
-  <img src="img/demos/scene_demo.png" height="420" alt="Scene generation Gradio demo">
-</p>
+Try [Object Generation](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Object) and [Scene Generation](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Scene) online on Hugging Face Spaces, or run the demos locally with the commands below.
+
+![Object and Scene online demos](img/demos/online_demos.png)
 
 ### 2.1 Object Generation
 

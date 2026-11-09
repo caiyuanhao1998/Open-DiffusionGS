@@ -5,9 +5,8 @@ from einops import rearrange
 
 try:
     import xformers.ops as xops
-except ImportError as e:
-    print("Please install xformers to use flashatt v2")
-    raise e
+except ImportError:
+    xops = None
 
 from timm.models.vision_transformer import PatchEmbed, Attention, Mlp
 
@@ -133,7 +132,7 @@ class SelfAttention(nn.Module):
         self.fc = nn.Linear(d, d, bias=attn_fc_bias)
         self.attn_fc_dropout = nn.Dropout(attn_fc_dropout)
 
-        self.use_flashatt_v2 = use_flashatt_v2
+        self.use_flashatt_v2 = use_flashatt_v2 and xops is not None
 
     def forward(self, x, subset_attention_size=None):
         """
@@ -202,7 +201,7 @@ class SelfAttention(nn.Module):
                 x = torch.cat([x, x_rest], dim=2)
             else:
                 x = F.scaled_dot_product_attention(q, k, v, dropout_p=dropout_p)
-                x = rearrange(x, "b nh l dh -> b l (nh dh)")
+            x = rearrange(x, "b nh l dh -> b l (nh dh)")
 
         x = self.attn_fc_dropout(self.fc(x))
         return x
@@ -324,7 +323,7 @@ class CrossAttention(nn.Module):
 
         self.attn_dropout = attn_dropout
         assert self.attn_dropout == 0.0
-        self.use_flashatt_v2 = use_flashatt_v2
+        self.use_flashatt_v2 = use_flashatt_v2 and xops is not None
         self.causal = causal
 
     def forward(self, x, y=None):

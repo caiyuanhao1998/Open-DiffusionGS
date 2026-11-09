@@ -35,6 +35,8 @@ rembg==2.0.59
 onnxruntime
 rich
 gradio==5.5.0
+# Gradio 5.5.0's API schema parser does not support Pydantic 2.11+.
+pydantic>=2.0,<2.11
 wandb==0.18.6
 open3d
 easydict
@@ -44,3 +46,4 @@ lpips
 imageio-ffmpeg
 kiui==0.2.19
 pymeshlab==2023.12
+plotly>=5.18

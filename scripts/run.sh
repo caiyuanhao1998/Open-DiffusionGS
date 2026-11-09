@@ -1,3 +1,3 @@
 #!/bin/bash
 source activate diffusiongs
-python run.py
+python object_demo.py

@@ -151,12 +151,63 @@ pip install torch==2.5.1 torchvision==0.20.1 xformers==0.0.29.post1 --index-url 
 &nbsp;
 
 ## 2. Quick Demo
+
+### 2.1 Object Generation
+
 For object-centric image-to-3D generation model, we provide a single-line script to use the code:
 ```shell
-python run.py
+python object_demo.py
 ```
 This code will automatically download the model checkpoints and config files from [HuggingFace](https://huggingface.co/CaiYuanhao/DiffusionGS). Or you can manually download them from [this link](https://huggingface.co/CaiYuanhao/DiffusionGS) and set them to a local path.
 
+### 2.2 Scene Generation with Camera Control (Gradio)
+
+Launch the single-image scene generation demo:
+
+```sh
+python scene_demo.py
+```
+
+Open `http://127.0.0.1:7860`, upload an indoor or outdoor scene image, select a trajectory, and click **Generate scene & video**. A bundled RealEstate10K room image is provided to get started. Images are center cropped to square; scene backgrounds are retained.
+
+The interactive 3D preview updates when camera settings change. Drag to rotate and scroll to zoom. Camera frusta and arrows show both position and viewing direction, including for pure rotation. Pink marks the input camera, gold marks the three generated keyframes, and green arrows show travel direction. The preview, model conditioning, exported cameras, and rendered video all use the same camera path.
+
+There are 16 trajectory presets:
+
+| Camera motion | Presets |
+| --- | --- |
+| Dolly | Forward, backward |
+| Truck | Left, right |
+| Pedestal | Up, down |
+| Pan | Left, right |
+| Tilt | Up, down |
+| Orbit | Left, right |
+| Combined paths | Crane forward, S-curve, figure eight |
+| Fixed camera | Static |
+
+Adjust translation scale, rotation angle, field of view, seed, diffusion steps, video length, and FPS. Both released scene checkpoints (256px and 512px) are supported and downloaded on first use. Only one model is retained on the GPU when switching resolution. The model generates a scene from four conditioning cameras; extra video frames are rendered from that Gaussian scene, without additional diffusion passes. Small motions generally give better scene coverage than large extrapolations.
+
+To select a GPU, use local checkpoints, or store outputs outside the repository:
+
+```sh
+CUDA_VISIBLE_DEVICES=0 python scene_demo.py \
+  --model-dir /path/to/DiffusionGS \
+  --cache-dir /path/to/huggingface-cache \
+  --output-dir /path/to/scene-results \
+  --server-port 7860
+```
+
+The local model directory should contain `scene_ckpt_256.ckpt` and/or `scene_ckpt_512.ckpt` for the resolutions you want to use. Omit `--model-dir` to download from `CaiYuanhao/DiffusionGS`. Use `--server-name 0.0.0.0` for remote access or `--share` to request a Gradio share link.
+
+Each generation saves an H.264 MP4, a Gaussian PLY, the processed input image, camera parameters, and run metadata in a separate output directory. The UI provides video playback, four keyframe views, and PLY/JSON downloads. Camera JSON stores OpenCV **camera-to-world** matrices (+X right, +Y down, +Z forward), pixel-space `(fx, fy, cx, cy)` intrinsics, and the four conditioning frame indices. Translation is normalized using the RealEstate10K convention before applying the selected motion scale. The 3D preview displays the same coordinates with the vertical axis flipped upward for readability.
+
+The demo uses `diffusionGS/pipeline_scene.py` for scene inference without loading training losses. Camera-control interaction and frustum visualization are inspired by [CameraCtrl](https://github.com/hehao13/CameraCtrl); no CameraCtrl model is required. Keep the Pydantic constraint in `requirement.txt` when using Gradio 5.5.0, whose API schema parser is incompatible with Pydantic 2.11+.
+
+Camera geometry checks can be run without loading model checkpoints:
+
+```sh
+python -m unittest discover -s tests -v
+```
 
 &nbsp;
 

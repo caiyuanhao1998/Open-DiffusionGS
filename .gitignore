@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+outputs/
+debug/
+scene_ckpts/
+*.ckpt

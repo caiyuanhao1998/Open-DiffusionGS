@@ -1,62 +1,125 @@
-[
-  {
-    "file": "museum_room.jpg",
-    "label": "Museum interior",
-    "title": "Living Room - Vizcaya Museum and Gardens - Miami, Florida - DSC08344.jpg",
-    "author": "Daderot",
-    "source": "https://commons.wikimedia.org/wiki/File:Living_Room_-_Vizcaya_Museum_and_Gardens_-_Miami,_Florida_-_DSC08344.jpg",
-    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Living_Room_-_Vizcaya_Museum_and_Gardens_-_Miami%2C_Florida_-_DSC08344.jpg/960px-Living_Room_-_Vizcaya_Museum_and_Gardens_-_Miami%2C_Florida_-_DSC08344.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "license": "Public domain",
-    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+{
+  "dataset": "RealEstate10K",
+  "dataset_url": "https://google.github.io/realestate10k/",
+  "retained_first_image": {
+    "file": "../test_cases/scene_room.png",
+    "size": [
+      256,
+      256
+    ],
+    "sha256": "77f6a025d29d39a55d2e08fc096290596fbf28cadc454b6496465844d38a567e",
+    "source": "First tile of the bundled examp_data/example/debug_realestate_10k/data_examples/image.png"
   },
-  {
-    "file": "kitchen.jpg",
-    "label": "Kitchen",
-    "title": "RestaurantKitchen2.jpg",
-    "author": "Raysonho @ Open Grid Scheduler / Grid Engine",
-    "source": "https://commons.wikimedia.org/wiki/File:RestaurantKitchen2.jpg",
-    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/RestaurantKitchen2.jpg/960px-RestaurantKitchen2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "license": "CC0",
-    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-  },
-  {
-    "file": "city_street.jpg",
-    "label": "City street",
-    "title": "Street scene with walkway and cars and buildings and trees.jpg",
-    "author": "Tomwsulcer",
-    "source": "https://commons.wikimedia.org/wiki/File:Street_scene_with_walkway_and_cars_and_buildings_and_trees.jpg",
-    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Street_scene_with_walkway_and_cars_and_buildings_and_trees.jpg/960px-Street_scene_with_walkway_and_cars_and_buildings_and_trees.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "license": "CC0",
-    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-  },
-  {
-    "file": "london_buildings.jpg",
-    "label": "Urban buildings",
-    "title": "Lime Street buildings, City of London.jpg",
-    "author": "Robert von Oliva (naruciakk)",
-    "source": "https://commons.wikimedia.org/wiki/File:Lime_Street_buildings,_City_of_London.jpg",
-    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Lime_Street_buildings%2C_City_of_London.jpg/960px-Lime_Street_buildings%2C_City_of_London.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "license": "CC0",
-    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-  },
-  {
-    "file": "garden_path.jpg",
-    "label": "Garden path",
-    "title": "English Garden Path.jpg",
-    "author": "Robert Brink",
-    "source": "https://commons.wikimedia.org/wiki/File:English_Garden_Path.jpg",
-    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/English_Garden_Path.jpg/960px-English_Garden_Path.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "license": "CC0",
-    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-  },
-  {
-    "file": "mountain_lake.jpg",
-    "label": "Mountain lake",
-    "title": "Mountain lake in Alps.jpg",
-    "author": "Unknown author",
-    "source": "https://commons.wikimedia.org/wiki/File:Mountain_lake_in_Alps.jpg",
-    "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Mountain_lake_in_Alps.jpg/960px-Mountain_lake_in_Alps.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "license": "CC0",
-    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-  }
-]
+  "extracted_images": [
+    {
+      "file": "re10k_0bf152ef84195293.png",
+      "label": "Open kitchen",
+      "scene_id": "0bf152ef84195293",
+      "reference_clip_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/0bf152ef84195293.mp4",
+      "reference_pose_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/pose_files/0bf152ef84195293.txt",
+      "reference_repository_revision": "af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2",
+      "source_youtube_url": "https://www.youtube.com/watch?v=QShWPZxTDoE",
+      "reference_frame_index_zero_based": 8,
+      "reference_frame_count": 16,
+      "original_frame_size": [
+        384,
+        256
+      ],
+      "output_size": [
+        256,
+        256
+      ],
+      "preprocessing": "Center crop to square and resize to 256x256 with Pillow LANCZOS",
+      "sha256": "8386a007598d2dc527c034ca8212522c9333bf3aa955ec7db8d6d4181e7144c4",
+      "source_timestamp_microseconds": 160927594
+    },
+    {
+      "file": "re10k_0f47577ab3441480.png",
+      "label": "Home office",
+      "scene_id": "0f47577ab3441480",
+      "reference_clip_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/0f47577ab3441480.mp4",
+      "reference_pose_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/pose_files/0f47577ab3441480.txt",
+      "reference_repository_revision": "af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2",
+      "source_youtube_url": "https://www.youtube.com/watch?v=in69BD2eZqg",
+      "reference_frame_index_zero_based": 8,
+      "reference_frame_count": 16,
+      "original_frame_size": [
+        384,
+        256
+      ],
+      "output_size": [
+        256,
+        256
+      ],
+      "preprocessing": "Center crop to square and resize to 256x256 with Pillow LANCZOS",
+      "sha256": "f268b9246d17950269f27d5200e1a2a2001f5e21c2b2d88e4aa18b365e063b86",
+      "source_timestamp_microseconds": 197797600
+    },
+    {
+      "file": "re10k_2c80f9eb0d3b2bb4.png",
+      "label": "Living room",
+      "scene_id": "2c80f9eb0d3b2bb4",
+      "reference_clip_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/2c80f9eb0d3b2bb4.mp4",
+      "reference_pose_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/pose_files/2c80f9eb0d3b2bb4.txt",
+      "reference_repository_revision": "af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2",
+      "source_youtube_url": "https://www.youtube.com/watch?v=sLIFyXD2ujI",
+      "reference_frame_index_zero_based": 8,
+      "reference_frame_count": 16,
+      "original_frame_size": [
+        384,
+        256
+      ],
+      "output_size": [
+        256,
+        256
+      ],
+      "preprocessing": "Center crop to square and resize to 256x256 with Pillow LANCZOS",
+      "sha256": "f5be6bb3fe051835fa7be7a91b9d9eeefe4b565dc62ac91534f5cac686c329e1",
+      "source_timestamp_microseconds": 78845433
+    },
+    {
+      "file": "re10k_3c35b868a8ec3433.png",
+      "label": "Bedroom",
+      "scene_id": "3c35b868a8ec3433",
+      "reference_clip_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/3c35b868a8ec3433.mp4",
+      "reference_pose_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/pose_files/3c35b868a8ec3433.txt",
+      "reference_repository_revision": "af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2",
+      "source_youtube_url": "https://www.youtube.com/watch?v=bJyPo9pESu0",
+      "reference_frame_index_zero_based": 8,
+      "reference_frame_count": 16,
+      "original_frame_size": [
+        384,
+        256
+      ],
+      "output_size": [
+        256,
+        256
+      ],
+      "preprocessing": "Center crop to square and resize to 256x256 with Pillow LANCZOS",
+      "sha256": "f07c72c33935f92a17a18879a28e0aac887a521c7a444bcbc67336794e63af8b",
+      "source_timestamp_microseconds": 191024167
+    },
+    {
+      "file": "re10k_4a2d6753676df096.png",
+      "label": "Kitchen and dining room",
+      "scene_id": "4a2d6753676df096",
+      "reference_clip_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/4a2d6753676df096.mp4",
+      "reference_pose_url": "https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/pose_files/4a2d6753676df096.txt",
+      "reference_repository_revision": "af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2",
+      "source_youtube_url": "https://www.youtube.com/watch?v=mGFQkgadzRQ",
+      "reference_frame_index_zero_based": 8,
+      "reference_frame_count": 16,
+      "original_frame_size": [
+        384,
+        256
+      ],
+      "output_size": [
+        256,
+        256
+      ],
+      "preprocessing": "Center crop to square and resize to 256x256 with Pillow LANCZOS",
+      "sha256": "7d358ce22dafe811fdd0687f1a610ab35989a49a545e8f4c0600cb12a12dccc0",
+      "source_timestamp_microseconds": 126459000
+    }
+  ]
+}

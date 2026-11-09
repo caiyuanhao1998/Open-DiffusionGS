@@ -1,12 +1,15 @@
-# Scene example image credits
+# RealEstate10K reference images
 
-These six photographs are distributed under CC0 1.0. The bundled files are Wikimedia-generated reduced-resolution previews. The existing RealEstate10K room example remains in `../test_cases/scene_room.png`.
+The demo retains the original bundled room image unchanged and adds one frame from each of five different RealEstate10K scenes. All six images are **256x256 RGB PNGs**.
 
-| File | Subject | Author | Source | License |
-| --- | --- | --- | --- | --- |
-| `museum_room.jpg` | Museum interior | Daderot | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Living_Room_-_Vizcaya_Museum_and_Gardens_-_Miami,_Florida_-_DSC08344.jpg) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
-| `kitchen.jpg` | Kitchen | Raysonho @ Open Grid Scheduler / Grid Engine | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:RestaurantKitchen2.jpg) | [CC0 1.0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
-| `city_street.jpg` | City street | Tomwsulcer | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Street_scene_with_walkway_and_cars_and_buildings_and_trees.jpg) | [CC0 1.0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
-| `london_buildings.jpg` | Urban buildings | Robert von Oliva (naruciakk) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lime_Street_buildings,_City_of_London.jpg) | [CC0 1.0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
-| `garden_path.jpg` | Garden path | Robert Brink | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:English_Garden_Path.jpg) | [CC0 1.0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
-| `mountain_lake.jpg` | Mountain lake | Unknown author | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Mountain_lake_in_Alps.jpg) | [CC0 1.0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+The five new frames are extracted from the RealEstate10K reference clips provided by [CameraCtrl](https://github.com/hehao13/CameraCtrl/tree/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos). The matching pose files identify the original YouTube videos. Each reference clip contributes its zero-based frame 8, center cropped to square. Exact source URLs, repository revision, dimensions, frame indices, available original timestamps, and SHA256 hashes are recorded in [credits.json](credits.json).
+
+| Image | Scene ID | Source video | Reference clip |
+| --- | --- | --- | --- |
+| `re10k_0bf152ef84195293.png` (Open kitchen) | `0bf152ef84195293` | [YouTube](https://www.youtube.com/watch?v=QShWPZxTDoE) | [CameraCtrl reference](https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/0bf152ef84195293.mp4) |
+| `re10k_0f47577ab3441480.png` (Home office) | `0f47577ab3441480` | [YouTube](https://www.youtube.com/watch?v=in69BD2eZqg) | [CameraCtrl reference](https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/0f47577ab3441480.mp4) |
+| `re10k_2c80f9eb0d3b2bb4.png` (Living room) | `2c80f9eb0d3b2bb4` | [YouTube](https://www.youtube.com/watch?v=sLIFyXD2ujI) | [CameraCtrl reference](https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/2c80f9eb0d3b2bb4.mp4) |
+| `re10k_3c35b868a8ec3433.png` (Bedroom) | `3c35b868a8ec3433` | [YouTube](https://www.youtube.com/watch?v=bJyPo9pESu0) | [CameraCtrl reference](https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/3c35b868a8ec3433.mp4) |
+| `re10k_4a2d6753676df096.png` (Kitchen and dining room) | `4a2d6753676df096` | [YouTube](https://www.youtube.com/watch?v=mGFQkgadzRQ) | [CameraCtrl reference](https://raw.githubusercontent.com/hehao13/CameraCtrl/af45a7a0dbeedb7f6ed66aac4a9e5411a279f0d2/assets/reference_videos/4a2d6753676df096.mp4) |
+
+RealEstate10K dataset metadata: Google LLC, [CC BY 4.0](https://google.github.io/realestate10k/download.html). Original video sources are credited above.

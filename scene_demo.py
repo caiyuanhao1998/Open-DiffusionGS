@@ -18,12 +18,11 @@ EXAMPLE_IMAGE = Path(__file__).parent / "extra_files/test_cases/scene_room.png"
 EXAMPLE_DIRECTORY = Path(__file__).parent / "extra_files/scene_examples"
 SCENE_EXAMPLES = [
     ("Living room", EXAMPLE_IMAGE),
-    ("Museum interior", EXAMPLE_DIRECTORY / "museum_room.jpg"),
-    ("Kitchen", EXAMPLE_DIRECTORY / "kitchen.jpg"),
-    ("City street", EXAMPLE_DIRECTORY / "city_street.jpg"),
-    ("Urban buildings", EXAMPLE_DIRECTORY / "london_buildings.jpg"),
-    ("Garden path", EXAMPLE_DIRECTORY / "garden_path.jpg"),
-    ("Mountain lake", EXAMPLE_DIRECTORY / "mountain_lake.jpg"),
+    ("RealEstate10K open kitchen", EXAMPLE_DIRECTORY / "re10k_0bf152ef84195293.png"),
+    ("RealEstate10K home office", EXAMPLE_DIRECTORY / "re10k_0f47577ab3441480.png"),
+    ("RealEstate10K living room", EXAMPLE_DIRECTORY / "re10k_2c80f9eb0d3b2bb4.png"),
+    ("RealEstate10K bedroom", EXAMPLE_DIRECTORY / "re10k_3c35b868a8ec3433.png"),
+    ("RealEstate10K kitchen and dining room", EXAMPLE_DIRECTORY / "re10k_4a2d6753676df096.png"),
 ]
 
 

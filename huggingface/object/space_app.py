@@ -13,6 +13,7 @@ for variable in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
 # ZeroGPU must install its CUDA emulation before torch is imported.
 import spaces
 import torch
+import gradio as gr
 from huggingface_hub import snapshot_download
 from omegaconf import OmegaConf
 
@@ -108,8 +109,11 @@ object_service.generate = generate_object
 object_service.extract_mesh = extract_mesh
 scene_service.generate = generate_scene
 demo = build_object_demo(service=object_service)
+with demo:
+    gr.Navbar(main_page_name="Object Generation")
 scene_demo = build_scene_demo(service=scene_service)
 with demo.route("Scene Generation", "/scene"):
+    gr.Navbar(main_page_name="Object Generation")
     scene_demo.render()
 
 if __name__ == "__main__":

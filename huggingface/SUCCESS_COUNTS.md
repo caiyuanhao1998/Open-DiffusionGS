@@ -17,6 +17,9 @@ Scene Space requires no secret. `SPACE_STATS_REPO` can optionally select another
 initialized private dataset. Never put tokens in repository files. The expiring
 interactive OAuth login is not used as a runtime credential.
 
+For a differently named Secret, set the non-sensitive `SPACE_STATS_TOKEN_NAME`
+Variable to that name. Existing deployments use `cyh_track_liuliang`.
+
 Recording runs in the CPU caller after the ZeroGPU worker returns, avoiding
 forked-process state or temporary-disk persistence. Optimistic commits and event
 IDs handle concurrent writers and uncertain commit responses without double

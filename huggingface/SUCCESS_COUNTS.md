@@ -1,0 +1,32 @@
+# Successful-run counts
+
+The shared backend records Object and Scene generation separately, only after
+their GPU calls return successfully. The Scene Space embeds the same backend,
+so a scene generated through either entry point counts once for Scene. Mesh
+extraction, camera previews, downloads, visits, and failed requests do not count.
+
+Each page's **Successful runs** panel shows only the previous calendar month's
+total and daily counts for the previous and current months. Dates use
+`America/Los_Angeles`. History before instrumentation starts is unavailable;
+an incomplete first month is explicitly marked as partial.
+
+The private dataset `CaiYuanhao/space-success-stats` stores the aggregate counts.
+Add a long-lived fine-grained token with read/write permission only for that
+dataset as the `SPACE_STATS_TOKEN` Secret on **DiffusionGS-Object**. The static
+Scene Space requires no secret. `SPACE_STATS_REPO` can optionally select another
+initialized private dataset. Never put tokens in repository files. The expiring
+interactive OAuth login is not used as a runtime credential.
+
+Recording runs in the CPU caller after the ZeroGPU worker returns, avoiding
+forked-process state or temporary-disk persistence. Optimistic commits and event
+IDs handle concurrent writers and uncertain commit responses without double
+counting. No images, prompts, IP addresses, or user IDs are stored. An outage
+does not prevent returning generated results; failed counter writes produce an
+anonymous `SUCCESS_COUNT_NOT_SAVED` log entry for recovery after retries.
+
+Open **Successful runs** and click **Refresh counts** after a generation to
+update the table. Cached remote reads expire after 30 seconds.
+
+```sh
+python -m unittest discover -s tests -p test_space_success_stats.py -v
+```

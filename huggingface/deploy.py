@@ -21,7 +21,7 @@ def deploy(wheel):
     object_files += [(name, ROOT / name) for name in
                      ("object_demo.py", "scene_demo.py", "camera_trajectories.py")]
     object_files += [(name, ROOT / "huggingface/object" / name) for name in
-                     ("README.md", "space_app.py", "requirements.txt", "packages.txt")]
+                     ("README.md", "space_app.py", "space_success_stats.py", "requirements.txt", "packages.txt")]
     object_files += [(f"wheels/{wheel.name}", wheel),
                      ("wheels/RASTERIZER_LICENSE.md", ROOT / "submodules/diff-gaussian-rasterization/LICENSE.md")]
     screenshots = [(f"img/demos/{name}.png", ROOT / f"img/demos/{name}.png")

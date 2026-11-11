@@ -5,8 +5,9 @@ their GPU calls return successfully. The Scene Space embeds the same backend,
 so a scene generated through either entry point counts once for Scene. Mesh
 extraction, camera previews, downloads, visits, and failed requests do not count.
 
-Each page's **Successful runs** panel shows only the previous calendar month's
-total and daily counts for the previous and current months. Dates use
+Badges below each page title show the previous calendar month's total and today's
+successful runs. The **Daily success history** panel contains the daily table
+for the previous and current months. Dates use
 `America/Los_Angeles`. History before instrumentation starts is unavailable;
 an incomplete first month is explicitly marked as partial.
 
@@ -27,8 +28,8 @@ counting. No images, prompts, IP addresses, or user IDs are stored. An outage
 does not prevent returning generated results; failed counter writes produce an
 anonymous `SUCCESS_COUNT_NOT_SAVED` log entry for recovery after retries.
 
-Open **Successful runs** and click **Refresh counts** after a generation to
-update the table. Cached remote reads expire after 30 seconds.
+Badges load on page opening and update automatically after successful generation.
+Open **Daily success history** and click **Refresh counts** to reload from storage. Cached remote reads expire after 30 seconds.
 
 ```sh
 python -m unittest discover -s tests -p test_space_success_stats.py -v

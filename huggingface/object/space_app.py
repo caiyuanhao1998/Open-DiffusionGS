@@ -23,7 +23,7 @@ from diffusionGS.models.denoiser.denoiser import DGSDenoiser
 from diffusionGS.models.diffusion import create_diffusion
 from diffusionGS.pipeline_scene import DiffusionGSScenePipeline
 from diffusionGS.pipline_obj import DiffusionGSPipeline
-from space_success_stats import SuccessStats, add_usage_panel
+from space_success_stats import SuccessStats, UsageDisplay
 
 ROOT = Path(__file__).resolve().parent
 OUTPUT_ROOT = Path(os.environ.get("DIFFUSIONGS_OUTPUT_DIR", ROOT / "outputs")).resolve()
@@ -111,12 +111,10 @@ def generate_scene(image, preset, translation_scale, rotation_degrees, fov_degre
 object_service.generate = stats.successful("diffusiongs-object")(generate_object)
 object_service.extract_mesh = extract_mesh
 scene_service.generate = stats.successful("diffusiongs-scene")(generate_scene)
-demo = build_object_demo(service=object_service)
-add_usage_panel(demo, stats, "diffusiongs-object")
+demo = build_object_demo(service=object_service, usage=UsageDisplay(stats, "diffusiongs-object"))
 with demo:
     gr.Navbar(main_page_name="Object Generation")
-scene_demo = build_scene_demo(service=scene_service)
-add_usage_panel(scene_demo, stats, "diffusiongs-scene")
+scene_demo = build_scene_demo(service=scene_service, usage=UsageDisplay(stats, "diffusiongs-scene"))
 with demo.route("Scene Generation", "/scene"):
     gr.Navbar(main_page_name="Object Generation")
     scene_demo.render()

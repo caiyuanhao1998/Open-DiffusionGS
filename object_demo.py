@@ -153,7 +153,7 @@ class ObjectDemo:
 
 
 def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_demo", device="cuda:0", *,
-               service=None, resume_result=None):
+               service=None, resume_result=None, usage=None):
     service = service if service is not None else ObjectDemo(model_dir, output_dir, device)
     restored = None
     gallery_value, cloud_value = None, None
@@ -174,6 +174,8 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_de
         result_directory = gr.State(str(directory) if restored else None)
         gr.Markdown("# DiffusionGS · Object Generation\n"
                     "Generate a 3D object from one image, then optionally extract its mesh.")
+        if usage is not None:
+            usage.render_header()
         with gr.Row():
             with gr.Column(scale=1):
                 image = gr.Image(value=str(directory / "input.png") if restored else str(OBJECT_EXAMPLES[0]),
@@ -230,6 +232,8 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_de
                                        concurrency_id="object_gpu", concurrency_limit=1)
         extraction.success(lambda: (gr.update(interactive=True), gr.update(interactive=True)),
                            outputs=[obj, glb], queue=False, api_name=False)
+        if usage is not None:
+            usage.bind(demo, generation)
     return demo.queue(max_size=8, default_concurrency_limit=1)
 
 

@@ -5,11 +5,11 @@ their GPU calls return successfully. The Scene Space embeds the same backend,
 so a scene generated through either entry point counts once for Scene. Mesh
 extraction, camera previews, downloads, visits, and failed requests do not count.
 
-Badges at the right edge of each title row show the previous calendar month's total and today's
+Badges at the right edge of each title row show the last 30 days' total and today's
 successful runs. The **Daily success history** panel contains the daily table
-for the previous and current months. Dates use
+for today and the preceding 29 days. Dates use
 `America/Los_Angeles`. History before instrumentation starts is unavailable;
-an incomplete first month is explicitly marked as partial.
+the total includes the available recorded activity without waiting for a full month.
 
 The private dataset `CaiYuanhao/space-success-stats` stores the aggregate counts.
 Add a long-lived fine-grained token with read/write permission only for that

@@ -5,7 +5,7 @@ their GPU calls return successfully. The Scene Space embeds the same backend,
 so a scene generated through either entry point counts once for Scene. Mesh
 extraction, camera previews, downloads, visits, and failed requests do not count.
 
-Badges below each page title show the previous calendar month's total and today's
+Badges at the right edge of each title row show the previous calendar month's total and today's
 successful runs. The **Daily success history** panel contains the daily table
 for the previous and current months. Dates use
 `America/Los_Angeles`. History before instrumentation starts is unavailable;

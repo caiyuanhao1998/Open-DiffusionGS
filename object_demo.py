@@ -172,10 +172,11 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_de
                               f"View {i + 1}") for i in range(4)]
     with gr.Blocks(title="DiffusionGS · Object Generation", theme=gr.themes.Soft()) as demo:
         result_directory = gr.State(str(directory) if restored else None)
-        gr.Markdown("# DiffusionGS · Object Generation\n"
-                    "Generate a 3D object from one image, then optionally extract its mesh.")
         if usage is not None:
-            usage.render_header()
+            usage.render_header("DiffusionGS · Object Generation")
+        else:
+            gr.Markdown("# DiffusionGS · Object Generation")
+        gr.Markdown("Generate a 3D object from one image, then optionally extract its mesh.")
         with gr.Row():
             with gr.Column(scale=1):
                 image = gr.Image(value=str(directory / "input.png") if restored else str(OBJECT_EXAMPLES[0]),

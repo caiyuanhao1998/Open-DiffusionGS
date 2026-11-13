@@ -45,6 +45,7 @@ This is an implementation of our work "Baking Gaussian Splatting into Diffusion 
 
 
 ### News
+- **2026.11.13 :** We release the [exported mesh results](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS/tree/main/meshes) for all 95 object point clouds, with interactive mesh viewers on our [project page](https://caiyuanhao1998.github.io/project/DiffusionGS/).
 - **2026.11.09 :** Try our [Object Generation](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Object) and [Scene Generation](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Scene) online demos on Hugging Face Spaces. 🤗
 - **2025.11.20 :** Added mesh exportation code. Feel free to have a try. 💫
 - **2025.10.23 :** Add mesh exportion example. Code of this part will also will be released. 🤗

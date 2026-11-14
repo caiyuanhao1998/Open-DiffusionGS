@@ -41,8 +41,8 @@
 This is an implementation of our work "Baking Gaussian Splatting into Diffusion Denoiser for Fast and Scalable Single-stage Image-to-3D Generation and Reconstruction
 ". The code and checkpoints here is a **re-implementation** and **re-training** and **differs** from the original version developed at Adobe. Our DiffusionGS is single-stage and does not rely on 2D multi-view diffusion model. DiffusionGS can be applied to single-view 3D object generation with mesh exportation and scene reconstruction without using depth estimator in ~6 seconds. If you find our repo useful, please give it a star ⭐ and consider citing our paper. Thank you :)
 
-<!-- Adjust the spacer height to control the gap above the mesh heading on GitHub. -->
-<h3 align="center"><img src="img/mesh-heading-spacer.svg" width="1" height="34" alt="">Exported Meshes - Click each to open its interactive viewer</h3>
+<!-- Adjust the height in mesh-heading-spacer.svg to control the gap above the mesh heading on GitHub. -->
+<h3 align="center"><img src="img/mesh-heading-spacer.svg?v=34" width="1" height="34" alt="">Exported Meshes - Click each to open its interactive viewer</h3>
 
 <p align="center">
   <a href="https://caiyuanhao1998.github.io/project/DiffusionGS/viewer/mesh.html?asset=SD%2Fwarrier"><img src="img/meshes/link.png" width="32%" alt="Link exported mesh" title="Open interactive mesh viewer"></a>

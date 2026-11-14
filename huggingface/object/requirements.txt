@@ -42,3 +42,7 @@ timm==0.9.16
 tqdm
 PyYAML
 https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Object/resolve/371894508e012e7503ae17660611f632ae5d9ef6/wheels/diff_gaussian_rasterization-0.0.0-cp312-cp312-linux_x86_64.whl#sha256=bcf49fd182d379c715293a42de1b1995220788e13be528d84392b183f4d0b781
+
+# Textured object mesh export (shared by the demo and inference).
+xatlas==0.0.11
+numba>=0.59

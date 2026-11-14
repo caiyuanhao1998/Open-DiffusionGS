@@ -7,7 +7,7 @@ from scipy.spatial import cKDTree
 import trimesh
 
 
-PREVIEW_VERSION = 1
+PREVIEW_VERSION = 2
 
 
 def read_gaussian_colors(point_cloud_path):
@@ -48,46 +48,37 @@ def color_mesh_from_gaussians(mesh, point_cloud_path, neighbors=8):
     return colored
 
 
-def _baked_color_material(tree):
-    # Gaussian colors already contain the appearance predicted by the model.
-    # Unlit glTF materials display those colors consistently without depending
-    # on the viewer having an environment map or additional scene lights.
-    tree["materials"] = [{
-        "name": "Gaussian colors",
-        "pbrMetallicRoughness": {"baseColorFactor": [1, 1, 1, 1],
-                                 "metallicFactor": 0, "roughnessFactor": 1},
-        "doubleSided": True,
-        "extensions": {"KHR_materials_unlit": {}},
-    }]
-    extensions = tree.setdefault("extensionsUsed", [])
-    if "KHR_materials_unlit" not in extensions:
-        extensions.append("KHR_materials_unlit")
-    for item in tree["meshes"]:
-        for primitive in item["primitives"]:
-            primitive["material"] = 0
-
-
 def export_colored_mesh(mesh, point_cloud_path, obj_path, glb_path):
-    """Save a colored Z-up OBJ and a self-contained, Y-up GLB for the viewer."""
-    colored = color_mesh_from_gaussians(mesh, point_cloud_path)
+    """Save a textured Z-up OBJ package and self-contained, Y-up PBR GLB."""
+    import zipfile
+    from .mesh_texture import texture_mesh_from_gaussians
+
+    textured = texture_mesh_from_gaussians(mesh, point_cloud_path)
     obj_path, glb_path = Path(obj_path), Path(glb_path)
-    obj_data = trimesh.exchange.obj.export_obj(colored, include_normals=True, include_color=True)
-    preview = colored.copy()
-    preview.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))
-    # glTF vertex colors are linear; the model's display RGB values are sRGB.
-    rgb = preview.visual.vertex_colors[:, :3].astype(np.float64) / 255
-    linear = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
-    preview.visual.vertex_colors = np.column_stack([
-        np.rint(linear * 255).astype(np.uint8), np.full(len(rgb), 255, dtype=np.uint8),
-    ])
-    glb_data = trimesh.exchange.gltf.export_glb(
-        trimesh.Scene(preview), include_normals=True, tree_postprocessor=_baked_color_material,
+    obj_data, assets = trimesh.exchange.obj.export_obj(
+        textured, include_normals=True, include_texture=True, return_texture=True,
+        mtl_name=obj_path.with_suffix(".mtl").name,
     )
-    # Publish complete files, including when recoloring previously extracted meshes.
+    preview = textured.copy()
+    preview.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))
+    glb_data = trimesh.exchange.gltf.export_glb(trimesh.Scene(preview), include_normals=True)
+    # Keep the OBJ, material and PNG together for a portable download.
+    package = obj_path.with_suffix(".obj.zip")
+    package_temp = package.with_name(package.name + ".tmp")
+    with zipfile.ZipFile(package_temp, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr(obj_path.name, obj_data)
+        for name, data in assets.items():
+            archive.writestr(name, data)
+    for name, data in assets.items():
+        target = obj_path.parent / name
+        temp = target.with_name(target.name + ".tmp")
+        temp.write_bytes(data if isinstance(data, bytes) else data.encode())
+        temp.replace(target)
     obj_temp = obj_path.with_name(obj_path.name + ".tmp")
     glb_temp = glb_path.with_name(glb_path.name + ".tmp")
     obj_temp.write_text(obj_data)
     glb_temp.write_bytes(glb_data)
     obj_temp.replace(obj_path)
     glb_temp.replace(glb_path)
-    return colored
+    package_temp.replace(package)
+    return textured

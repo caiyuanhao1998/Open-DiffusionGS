@@ -51,3 +51,7 @@ imageio-ffmpeg
 kiui==0.2.19
 pymeshlab==2023.12
 plotly>=5.18
+
+# Textured object mesh export (shared by the demo and inference).
+xatlas==0.0.11
+numba>=0.59

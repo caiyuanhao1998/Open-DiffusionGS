@@ -170,7 +170,7 @@ Try [Object Generation](https://huggingface.co/spaces/CaiYuanhao/DiffusionGS-Obj
 
 ### 2.1 Object Generation
 
-Generate a 3D object from a single reference image, with rendered views, a Gaussian point cloud, and optional colored mesh extraction. The Gradio demo lets you upload an image or try a bundled example, preview the result, and download the point cloud or colored GLB / OBJ mesh.
+Generate a 3D object from a single reference image, with rendered views, a Gaussian point cloud, and optional textured mesh extraction. The Gradio demo lets you upload an image or try a bundled example, preview the result, and download the point cloud or 2K textured mesh as GLB / OBJ ZIP.
 
 Gradio demo:
 

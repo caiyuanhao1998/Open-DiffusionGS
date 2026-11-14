@@ -76,7 +76,7 @@ for resolution in (256, 512):
 scene_service = SceneDemo(output_dir=OUTPUT_ROOT / "scene")
 
 _generate_object = object_service.generate
-_extract_mesh = object_service.extract_mesh
+_extract_geometry = object_service.extract_geometry
 _generate_scene = scene_service.generate
 
 
@@ -87,9 +87,9 @@ def generate_object(image, seed, foreground_ratio, force_remove_background):
 
 
 @spaces.GPU(duration=40)
-def extract_mesh(result_directory):
-    print("Starting mesh extraction on ZeroGPU", flush=True)
-    return _extract_mesh(result_directory)
+def extract_mesh_geometry(result_directory):
+    print("Starting mesh geometry extraction on ZeroGPU", flush=True)
+    return _extract_geometry(result_directory)
 
 
 def scene_gpu_duration(image, preset, translation_scale, rotation_degrees, fov_degrees,
@@ -109,7 +109,7 @@ def generate_scene(image, preset, translation_scale, rotation_degrees, fov_degre
 
 
 object_service.generate = stats.successful("diffusiongs-object")(generate_object)
-object_service.extract_mesh = extract_mesh
+object_service.geometry_extractor = extract_mesh_geometry
 scene_service.generate = stats.successful("diffusiongs-scene")(generate_scene)
 demo = build_object_demo(service=object_service, usage=UsageDisplay(stats, "diffusiongs-object"))
 with demo:

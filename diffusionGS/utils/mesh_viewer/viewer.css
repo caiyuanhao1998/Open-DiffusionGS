@@ -1,0 +1,25 @@
+/* Keep the Gradio output and its progress overlay full-sized even when empty/pending. */
+#object-mesh-preview { min-height: 450px; }
+#object-mesh-preview > .wrap { inset: 0; height: 100%; min-height: 450px; max-height: none; background: rgba(255,255,255,.96); border: 1px solid #e7ebef; border-radius: 10px; }
+#object-mesh-preview .progress-level { gap: 8px; }
+#object-mesh-preview .progress-level-inner { max-width: calc(100% - 48px); white-space: normal; text-align: center; font-family: inherit; font-size: 14px; }
+#object-mesh-preview .progress-bar-wrap { width: 70%; max-width: 480px; height: 10px; min-height: 10px; border: 0; border-radius: 5px; overflow: hidden; background: #e7edf3; }
+#object-mesh-preview .progress-bar { height: 100%; background: #4d90c3; }
+/* Show 0% while the request is being submitted/queued, before stage updates arrive. */
+#object-mesh-preview > .wrap:not(.hide):not(:has(.progress-level, .error)) > :not(.progress-text) { display: none; }
+#object-mesh-preview > .wrap:not(.hide):not(:has(.progress-level, .error))::before { content: "Preparing mesh export · 0%"; margin-bottom: 8px; font-size: 14px; }
+#object-mesh-preview > .wrap:not(.hide):not(:has(.progress-level, .error))::after { content: ""; width: 70%; max-width: 480px; height: 10px; border-radius: 5px; background: #e7edf3; }
+/* The preview owns the extraction progress; keep the status message readable. */
+#object-mesh-status > .wrap { display: none; }
+.object-mesh-preview { position: relative; height: 450px; min-width: 0; overflow: hidden; border: 1px solid #e7ebef; border-radius: 10px; background: #fff; color: #222a35; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.object-mesh-preview model-viewer { display: block; width: 100%; height: 100%; background: #fff; --poster-color: #fff; }
+.object-mesh-preview .mesh-status { margin: 0; position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); color: #657387; text-align: center; background: rgba(255,255,255,.94); padding: 12px; pointer-events: none; }
+.object-mesh-preview [hidden] { display: none !important; }
+.object-mesh-preview .mesh-progress { position: absolute; left: 0; top: 0; width: 100%; height: 3px; }
+.object-mesh-preview .mesh-progress span { display: block; height: 100%; background: #4d90c3; width: 0; transition: width .15s linear; }
+.object-mesh-preview .mesh-controls { display: flex; gap: 8px; position: absolute; right: 16px; bottom: 16px; }
+.object-mesh-preview .mesh-controls button { color: #4b5c70; background: rgba(255,255,255,.95); border: 1px solid #dce2e9; border-radius: 9px; padding: 9px 12px; cursor: pointer; font: inherit; font-size: 12px; }
+.object-mesh-preview .mesh-controls button:hover { background: #f0f5fa; }
+.object-mesh-preview .mesh-controls button:focus-visible { outline: 2px solid #4d90c3; outline-offset: 3px; }
+.object-mesh-preview .mesh-hint { position: absolute; left: 16px; bottom: 20px; color: #8893a2; font-size: 12px; pointer-events: none; }
+@media (max-width: 1000px) { .object-mesh-preview .mesh-hint { bottom: 65px; font-size: 11px; } }

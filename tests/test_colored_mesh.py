@@ -4,6 +4,7 @@ from pathlib import Path
 import struct
 import tempfile
 import unittest
+import zipfile
 
 import numpy as np
 from plyfile import PlyData, PlyElement
@@ -55,13 +56,28 @@ class ColoredMeshTests(unittest.TestCase):
         self.assertEqual(kind, b"JSON")
         tree = json.loads(data[20:20 + size])
         attributes = tree["meshes"][0]["primitives"][0]["attributes"]
-        self.assertIn("COLOR_0", attributes)
+        self.assertIn("TEXCOORD_0", attributes)
         self.assertIn("NORMAL", attributes)
-        self.assertIn("KHR_materials_unlit", tree["materials"][0]["extensions"])
+        material = tree["materials"][0]
+        self.assertNotIn("KHR_materials_unlit", material.get("extensions", {}))
+        self.assertEqual(material["pbrMetallicRoughness"]["metallicFactor"], 0)
+        self.assertEqual(material["pbrMetallicRoughness"]["roughnessFactor"], 1)
+        self.assertIn("baseColorTexture", material["pbrMetallicRoughness"])
+        self.assertTrue(all("uri" not in image for image in tree["images"]))
         self.assertTrue(all("uri" not in buffer for buffer in tree["buffers"]))
         exported = trimesh.load(obj, force="mesh", process=False)
-        np.testing.assert_allclose(exported.vertices, self.mesh.vertices)
-        np.testing.assert_array_equal(exported.visual.vertex_colors[:, :3], self.rgb * 255)
+        np.testing.assert_allclose(exported.bounds, self.mesh.bounds)
+        self.assertEqual(exported.visual.kind, "texture")
+        preview = trimesh.load(glb, force="mesh", process=False)
+        self.assertEqual(preview.visual.material.baseColorTexture.size, (2048, 2048))
+        with zipfile.ZipFile(obj.with_suffix(".obj.zip")) as archive:
+            self.assertIsNone(archive.testzip())
+            self.assertIn("test.obj", archive.namelist())
+            self.assertIn("test.mtl", archive.namelist())
+            material = archive.read("test.mtl").decode()
+            texture = next(line.split(maxsplit=1)[1] for line in material.splitlines()
+                           if line.startswith("map_Kd "))
+            self.assertIn(texture, archive.namelist())
         self.assertIn("\nvn ", obj.read_text())
 
     def test_existing_uncolored_demo_result_can_be_upgraded_without_a_gpu(self):
@@ -70,11 +86,39 @@ class ColoredMeshTests(unittest.TestCase):
         service = ObjectDemo(output_dir=self.root)
         preview, obj, glb, status = service.extract_mesh(str(self.root))
         self.assertEqual(preview, glb)
+        self.assertTrue(zipfile.is_zipfile(obj))
+        self.assertTrue((self.root / "mesh_geometry.ply").is_file())
         self.assertTrue(Path(preview).is_file())
         self.assertTrue(json.loads((self.root / "result.json").read_text())["colored_mesh"])
         modified = Path(glb).stat().st_mtime_ns
         service.extract_mesh(str(self.root))
         self.assertEqual(Path(glb).stat().st_mtime_ns, modified)
+
+
+    def test_geometry_callback_finishes_before_texture_export_and_is_cached(self):
+        from unittest.mock import patch
+        from diffusionGS.utils.mesh_preview import export_colored_mesh as real_export
+        (self.root / "result.json").write_text(json.dumps({"mesh_exported": False}))
+        service = ObjectDemo(output_dir=self.root)
+        active, calls = [], []
+
+        def gpu_geometry(directory):
+            active.append(True)
+            calls.append(directory)
+            self.mesh.export(self.root / "test.obj")
+            active.pop()
+
+        def cpu_export(*args, **kwargs):
+            self.assertFalse(active)
+            return real_export(*args, **kwargs)
+
+        service.geometry_extractor = gpu_geometry
+        with patch("diffusionGS.utils.mesh_preview.export_colored_mesh", side_effect=cpu_export):
+            result = service.extract_mesh(str(self.root))
+            service.extract_mesh(str(self.root))
+        self.assertEqual(calls, [str(self.root)])
+        self.assertTrue(Path(result[0]).is_file())
+        self.assertTrue(zipfile.is_zipfile(result[1]))
 
 
 if __name__ == "__main__":

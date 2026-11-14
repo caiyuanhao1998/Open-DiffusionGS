@@ -11,6 +11,8 @@ import numpy as np
 from PIL import Image, ImageOps
 import plotly.graph_objects as go
 
+from diffusionGS.utils.mesh_viewer import mesh_preview_html
+
 
 EXAMPLE_DIRECTORY = Path(__file__).parent / "extra_files/test_cases"
 OBJECT_EXAMPLES = [EXAMPLE_DIRECTORY / name for name in (
@@ -44,6 +46,7 @@ class ObjectDemo:
         self.device = device
         self.pipeline = None
         self.lock = threading.Lock()
+        self.geometry_extractor = None
 
     def generate(self, image, seed, foreground_ratio, force_remove_background,
                  progress=gr.Progress()):
@@ -104,9 +107,37 @@ class ObjectDemo:
             }, indent=2))
             progress(1, desc="Object ready")
             return (views, point_cloud_figure(xyz, colors), str(directory / "test.ply"),
-                    str(directory / "test.png"), None, None, None, str(directory),
+                    str(directory / "test.png"), mesh_preview_html(), None, None, str(directory),
                     f"**Done.** {len(xyz):,} Gaussians · {elapsed:.1f}s. Mesh export is available below.",
                     "Mesh has not been extracted for this object.")
+
+    def extract_geometry(self, result_directory, progress=gr.Progress()):
+        """Extract geometry; Spaces wraps only this stage in a GPU allocation."""
+        directory = Path(result_directory).resolve()
+        if not directory.is_relative_to(self.output_dir) or not (directory / "test.ply").is_file():
+            raise gr.Error("The generated object is unavailable. Please generate it again.")
+        destination = directory / "test.obj"
+        geometry_path = directory / "mesh_geometry.ply"
+        if not destination.is_file() or destination.stat().st_size == 0:
+            import torch
+            from diffusionGS.models.gsrenderer.gs_core import GaussianModel
+            progress(0.1, desc="Loading generated Gaussians for mesh extraction")
+            start = time.perf_counter()
+            with torch.inference_mode(), torch.cuda.device(self.device):
+                gaussians = GaussianModel(sh_degree=0)
+                gaussians.load_ply(str(directory / "test.ply"))
+                gaussians.to(self.device)
+                progress(0.2, desc="Extracting mesh; this can take several minutes")
+                mesh = gaussians.extract_mesh()
+                if not len(mesh.vertices) or not len(mesh.faces) or not np.isfinite(mesh.vertices).all():
+                    raise RuntimeError("Mesh extraction produced invalid geometry.")
+                mesh.export(destination)
+                mesh.export(geometry_path)
+            report = json.loads((directory / "result.json").read_text())
+            report.update(mesh_exported=True, mesh_seconds=time.perf_counter() - start,
+                          mesh_vertices=len(mesh.vertices), mesh_faces=len(mesh.faces))
+            (directory / "result.json").write_text(json.dumps(report, indent=2))
+        return str(destination)
 
     def extract_mesh(self, result_directory, progress=gr.Progress()):
         if not result_directory:
@@ -115,41 +146,33 @@ class ObjectDemo:
         if not directory.is_relative_to(self.output_dir) or not (directory / "test.ply").is_file():
             raise gr.Error("The generated object is unavailable. Please generate it again.")
         destination = directory / "test.obj"
+        geometry_path = directory / "mesh_geometry.ply"
+        package_path = directory / "test.obj.zip"
         with self.lock:
             if not destination.is_file() or destination.stat().st_size == 0:
-                import torch
-                from diffusionGS.models.gsrenderer.gs_core import GaussianModel
-                progress(0.1, desc="Loading generated Gaussians for mesh extraction")
-                start = time.perf_counter()
-                with torch.inference_mode(), torch.cuda.device(self.device):
-                    gaussians = GaussianModel(sh_degree=0)
-                    gaussians.load_ply(str(directory / "test.ply"))
-                    gaussians.to(self.device)
-                    progress(0.2, desc="Extracting mesh; this can take several minutes")
-                    mesh = gaussians.extract_mesh()
-                    if not len(mesh.vertices) or not len(mesh.faces) or not np.isfinite(mesh.vertices).all():
-                        raise RuntimeError("Mesh extraction produced invalid geometry.")
-                    mesh.export(destination)
-                report = json.loads((directory / "result.json").read_text())
-                report.update(mesh_exported=True, mesh_seconds=time.perf_counter() - start,
-                              mesh_vertices=len(mesh.vertices), mesh_faces=len(mesh.faces))
-                (directory / "result.json").write_text(json.dumps(report, indent=2))
+                if self.geometry_extractor is None:
+                    self.extract_geometry(str(directory), progress=progress)
+                else:
+                    progress(0.1, desc="Extracting mesh geometry on GPU")
+                    self.geometry_extractor(str(directory))
             from diffusionGS.utils.mesh_preview import export_colored_mesh, PREVIEW_VERSION
             preview_path = directory / "mesh_preview.glb"
             report = json.loads((directory / "result.json").read_text())
-            if (not preview_path.is_file()
+            if (not preview_path.is_file() or not package_path.is_file()
                     or report.get("mesh_preview_version") != PREVIEW_VERSION
                     or preview_path.stat().st_mtime < max(destination.stat().st_mtime,
                                                           (directory / "test.ply").stat().st_mtime)):
                 import trimesh
-                progress(0.95, desc="Adding mesh colors")
-                mesh = trimesh.load(destination, force="mesh", process=False)
+                progress(0.95, desc="Baking 2K mesh texture")
+                if not geometry_path.is_file():
+                    trimesh.load(destination, force="mesh", process=False).export(geometry_path)
+                mesh = trimesh.load(geometry_path, force="mesh", process=False)
                 export_colored_mesh(mesh, directory / "test.ply", destination, preview_path)
                 report.update(mesh_preview_version=PREVIEW_VERSION, colored_mesh=True)
                 (directory / "result.json").write_text(json.dumps(report, indent=2))
             progress(1, desc="Mesh ready")
-            return (str(preview_path), str(destination), str(preview_path),
-                    "**Mesh ready.** Rotate the color preview or download the GLB / OBJ below.")
+            return (str(preview_path), str(package_path), str(preview_path),
+                    "**Mesh ready.** Rotate the textured preview or download the GLB / OBJ ZIP below.")
 
 
 def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_demo", device="cuda:0", *,
@@ -170,12 +193,21 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_de
             size = grid.height - 4
             gallery_value = [(grid.crop((2 + i * (size + 2), 2, 2 + i * (size + 2) + size, 2 + size)),
                               f"View {i + 1}") for i in range(4)]
-    with gr.Blocks(title="DiffusionGS · Object Generation", theme=gr.themes.Soft()) as demo:
+    from diffusionGS.utils.mesh_viewer import ASSET_DIRECTORY, viewer_head
+    gr.set_static_paths(paths=[ASSET_DIRECTORY])
+
+    def extract_mesh_preview(result_directory, progress=gr.Progress()):
+        progress(0, desc="Preparing mesh export")
+        preview, obj, glb, status = service.extract_mesh(result_directory)
+        return mesh_preview_html(preview), obj, glb, status
+
+    with gr.Blocks(title="DiffusionGS · Object Generation", theme=gr.themes.Soft(),
+                   head=viewer_head(), css_paths=[ASSET_DIRECTORY / "viewer.css"]) as demo:
         result_directory = gr.State(str(directory) if restored else None)
         if usage is not None:
-            usage.render_header("DiffusionGS · Object Generation")
+            usage.render_header("DiffusionGS · Object Generation · ICCV 2025")
         else:
-            gr.Markdown("# DiffusionGS · Object Generation")
+            gr.Markdown("# DiffusionGS · Object Generation · ICCV 2025")
         gr.Markdown("Generate a 3D object from one image, then optionally extract its mesh.")
         with gr.Row():
             with gr.Column(scale=1):
@@ -207,15 +239,13 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_de
                 mesh_button = gr.Button("Extract mesh", interactive=bool(restored))
                 gr.Markdown("Mesh extraction is optional and can take several minutes. "
                             "It reuses the generated object without another diffusion pass.")
-                mesh_status = gr.Markdown(restored[3] if restored else None)
-                mesh_preview = gr.Model3D(value=restored[0] if restored else None,
-                                          label="Color mesh preview", height=450, interactive=False,
-                                          display_mode="solid", clear_color=(1, 1, 1, 1),
-                                          camera_position=(75, 75, None))
+                mesh_status = gr.Markdown(restored[3] if restored else None, elem_id="object-mesh-status")
+                mesh_preview = gr.HTML(mesh_preview_html(restored[0] if restored else None),
+                                       label="Exported mesh preview", elem_id="object-mesh-preview", min_height=450)
                 with gr.Row():
-                    glb = gr.DownloadButton("Download color mesh (.glb)",
+                    glb = gr.DownloadButton("Download textured mesh (.glb)",
                                             value=restored[2] if restored else None, interactive=bool(restored))
-                    obj = gr.DownloadButton("Download mesh (.obj)",
+                    obj = gr.DownloadButton("Download textured mesh (.obj.zip)",
                                             value=restored[1] if restored else None, interactive=bool(restored))
         generation = generate.click(
             service.generate, [image, seed, ratio, force],
@@ -228,9 +258,9 @@ def build_demo(model_dir="CaiYuanhao/DiffusionGS", output_dir="outputs/object_de
                      gr.update(interactive=False)),
             outputs=[ply, png, mesh_button, obj, glb], queue=False, api_name=False,
         )
-        extraction = mesh_button.click(service.extract_mesh, [result_directory],
+        extraction = mesh_button.click(extract_mesh_preview, [result_directory],
                                        [mesh_preview, obj, glb, mesh_status], api_name="extract_mesh",
-                                       concurrency_id="object_gpu", concurrency_limit=1)
+                                       concurrency_id="object_gpu", concurrency_limit=1, show_progress="full")
         extraction.success(lambda: (gr.update(interactive=True), gr.update(interactive=True)),
                            outputs=[obj, glb], queue=False, api_name=False)
         if usage is not None:

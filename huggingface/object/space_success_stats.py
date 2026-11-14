@@ -230,7 +230,7 @@ def success_badges(data, channel, *, now=None, title=None):
         return badges
     return ('<div style="display:flex;align-items:center;justify-content:space-between;'
             'flex-wrap:wrap;gap:12px;width:100%;margin:0 0 8px;">'
-            '<h1 style="flex:1 1 20rem;min-width:0;margin:0;padding:0;'
+            '<h1 style="flex:1 1 20rem;min-width:0;margin:0;padding:0;text-align:left;'
             'font-size:clamp(1.4rem,2.5vw,2rem);font-weight:600;line-height:1.25;">'
             + html.escape(title) + '</h1>' + badges + '</div>')
 
@@ -247,7 +247,8 @@ class UsageDisplay:
     def render_header(self, title):
         import gradio as gr
         self.title = title
-        self.header = gr.HTML(success_badges(None, self.channel, title=title), elem_classes=["success-counts"])
+        self.header = gr.HTML(success_badges(None, self.channel, title=title),
+                              elem_classes=["success-counts"], padding=False)
 
     def load(self):
         try:

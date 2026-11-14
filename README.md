@@ -41,14 +41,17 @@
 This is an implementation of our work "Baking Gaussian Splatting into Diffusion Denoiser for Fast and Scalable Single-stage Image-to-3D Generation and Reconstruction
 ". The code and checkpoints here is a **re-implementation** and **re-training** and **differs** from the original version developed at Adobe. Our DiffusionGS is single-stage and does not rely on 2D multi-view diffusion model. DiffusionGS can be applied to single-view 3D object generation with mesh exportation and scene reconstruction without using depth estimator in ~6 seconds. If you find our repo useful, please give it a star ⭐ and consider citing our paper. Thank you :)
 
+&nbsp;
+
+<p align="center">Exported Meshes - Click each to open its interactive viewer</p>
+
 <p align="center">
   <a href="https://caiyuanhao1998.github.io/project/DiffusionGS/viewer/mesh.html?asset=SD%2Fwarrier"><img src="img/meshes/link.png" width="32%" alt="Link exported mesh" title="Open interactive mesh viewer"></a>
   <a href="https://caiyuanhao1998.github.io/project/DiffusionGS/viewer/mesh.html?asset=flux%2Fdoctor"><img src="img/meshes/doctor.png" width="32%" alt="Doctor exported mesh" title="Open interactive mesh viewer"></a>
   <a href="https://caiyuanhao1998.github.io/project/DiffusionGS/viewer/mesh.html?asset=demo%2Fjige"><img src="img/meshes/jige.png" width="32%" alt="Jige exported mesh" title="Open interactive mesh viewer"></a>
 </p>
 
-Click each mesh to open its interactive viewer.
-
+&nbsp;
 
 ### News
 - **2026.11.13 :** We release the [exported mesh results](https://huggingface.co/datasets/CaiYuanhao/DiffusionGS/tree/main/meshes) for all 95 object point clouds, with interactive mesh viewers on our [project page](https://caiyuanhao1998.github.io/project/DiffusionGS/).

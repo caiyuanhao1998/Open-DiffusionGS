@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="40" viewBox="0 0 600 40" role="img" aria-label="Exported Meshes - Click each to open its interactive viewer">
+  <style>
+    text { fill: #1f2328; }
+    @media (prefers-color-scheme: dark) { text { fill: #f0f6fc; } }
+  </style>
+  <!-- The text position controls the gap above the caption. -->
+  <text x="300" y="34" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="20" font-weight="400">Exported Meshes - Click each to open its interactive viewer</text>
+</svg>
